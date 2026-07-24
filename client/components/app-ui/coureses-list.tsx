@@ -1,37 +1,60 @@
-import { motion } from "framer-motion"
-import { COURSE_CATEGORIES } from "@/data/courses"
+"use client"
 
-export default function CoursesList() {
+import { motion } from "framer-motion"
+import { ArrowRight } from "lucide-react"
+import { useRouter } from "next/navigation"
+
+import { Course } from "@/state/api.types"
+import CourseCard from "./course-card"
+
+interface ICourseListProps {
+  courses: Course[]
+}
+
+export default function CoursesList({ courses }: ICourseListProps) {
+  const router = useRouter()
+
   return (
-    <motion.section
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="mx-auto max-w-7xl px-4 text-center"
-    >
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.2 }}
-        viewport={{ once: true, amount: 0.3 }}
-        className="mx-auto mt-10 py-12"
-      >
-        <p className="mb-6 text-lg text-gray-500">
-          Explore our wide range of courses and enhance your skills. Start
-          learning today and advance your career.
-        </p>
-        <div className="mb-8 flex flex-wrap justify-center gap-8">
-          {COURSE_CATEGORIES.map((category) => (
-            <button
-              key={category}
-              className="rounded-lg bg-gray-200 px-4 py-2 text-lg font-medium text-gray-800 hover:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            >
-              {category}
-            </button>
-          ))}
+    <>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">
+            Featured Courses
+          </h2>
+
+          <p className="mt-1 text-sm text-neutral-500">
+            Hand-picked courses recommended for you.
+          </p>
         </div>
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4"></div>
-      </motion.div>
-    </motion.section>
+
+        <button
+          onClick={() => router.push("/search-courses")}
+          className="flex items-center gap-2 rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold transition hover:bg-neutral-100 dark:border-neutral-800 dark:hover:bg-neutral-900"
+        >
+          View all
+          <ArrowRight size={16} />
+        </button>
+      </div>
+
+      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        {courses.slice(0, 4).map((course, index) => (
+          <motion.div
+            key={course.id}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.4,
+              delay: index * 0.1,
+            }}
+            viewport={{ once: true }}
+          >
+            <CourseCard
+              course={course}
+              onClick={() => router.push(`/search-courses/${course.id}`)}
+            />
+          </motion.div>
+        ))}
+      </div>
+    </>
   )
 }

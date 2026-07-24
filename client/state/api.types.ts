@@ -40,7 +40,9 @@ export interface Course {
   level: CourseLevel
   status: CourseStatus
   instructorId: string
+  instructor: User
   sections?: Section[]
+  enrollments: Enrollment[]
 }
 
 export interface Transaction {
@@ -58,4 +60,11 @@ export interface LectureProgress {
   lectureId: number
   isCompleted: boolean
   updatedAt: string
+}
+
+export interface Enrollment {
+  id: string
+  userId: string
+  courseId: string
+  course: Course
 }

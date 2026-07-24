@@ -16,6 +16,9 @@ const customBaseQuery = async (
   })
   try {
     const result: any = await baseQuery(args, api, extraOptions)
+    if (result.data) {
+      result.data = result.data.data
+    }
     return result
   } catch (error) {
     const errorMessage =

@@ -38,6 +38,11 @@ export const getCourses = async (
               rating: true,
             },
           },
+          enrollments: {
+            select: {
+              userId: true,
+            },
+          },
         },
       }),
       db.course.count({ where: filterCondition }),
