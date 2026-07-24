@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
 import { useState } from "react"
+import { ModeToggle } from "../ui/mode-toggle"
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -18,12 +19,15 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-neutral-200/20 bg-white/70 p-4 backdrop-blur-xl dark:bg-black/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between">
-        <Link
-          href="/"
-          className="text-xl font-bold tracking-tight text-neutral-900 dark:text-white"
-        >
-          AgiTech
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/"
+            className="text-xl font-bold tracking-tight text-neutral-900 dark:text-white"
+          >
+            AgiTech
+          </Link>
+          <ModeToggle />
+        </div>
 
         <nav className="hidden items-center gap-8 md:flex">
           {links.map((link) => (
