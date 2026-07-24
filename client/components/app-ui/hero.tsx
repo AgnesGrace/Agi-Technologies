@@ -1,11 +1,10 @@
 import { cn } from "@/lib/utils"
 import { Button } from "../ui/button"
 import Link from "next/link"
-import CoursesList from "./coureses-list"
 
 export default function Hero() {
   return (
-    <section className="relative flex h-200 w-full items-center justify-center overflow-hidden bg-white dark:bg-black">
+    <section className="relative flex h-140 w-full items-center justify-center overflow-hidden bg-white dark:bg-black">
       <div
         className={cn(
           "absolute inset-0",
@@ -27,7 +26,6 @@ export default function Hero() {
             </Button>
           </Link>
         </div>
-        <CoursesList />
       </div>
     </section>
   )
