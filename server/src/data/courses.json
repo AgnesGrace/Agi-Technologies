@@ -1,0 +1,74 @@
+[
+  {
+    "slug": "nextjs-express-masterclass-2026",
+    "title": "Next.js & Express Full-Stack Masterclass",
+    "description": "Learn how to build real-world, high-performance production applications using modern web development practices.",
+    "category": "Web Development",
+    "image": "https://images.unsplash.com/photo-1783828704146-303e99169d50?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxOXx8fGVufDB8fHx8fA%3D%3D",
+    "price": 49.99,
+    "level": "Intermediate",
+    "status": "Published",
+    "sections": [
+      {
+        "title": "Section 1: Architecture & Project Configuration",
+        "order": 1,
+        "lectures": [
+          {
+            "title": "Introduction to the Stack Architecture",
+            "type": "Video",
+            "videoUrl": "https://amazonaws.com",
+            "order": 1
+          },
+          {
+            "title": "Configuring Prisma and PostgreSQL Schema",
+            "type": "Video",
+            "videoUrl": "https://amazonaws.com",
+            "order": 2
+          }
+        ]
+      },
+      {
+        "title": "Section 2: Authentication with Clerk",
+        "order": 2,
+        "lectures": [
+          {
+            "title": "Setting Up Clerk Middleware",
+            "type": "Video",
+            "videoUrl": "https://amazonaws.com",
+            "order": 1
+          },
+          {
+            "title": "Quiz: Authentication Architecture",
+            "type": "Quiz",
+            "content": "{\"questions\": [{\"q\": \"Where does Clerk secure sessions?\", \"a\": \"JWTs/Cookies\"}]}",
+            "order": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "react-redux-deep-dive",
+    "title": "Advanced State Management with Redux Toolkit",
+    "description": "Master global state management, asynchronous data fetching, and performance optimization flags.",
+    "category": "Frontend Development",
+    "image": "https://images.unsplash.com/photo-1783828704146-303e99169d50?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxOXx8fGVufDB8fHx8fA%3D%3D",
+    "price": 29.99,
+    "level": "Advanced",
+    "status": "Published",
+    "sections": [
+      {
+        "title": "Section 1: Redux Fundamentals",
+        "order": 1,
+        "lectures": [
+          {
+            "title": "Understanding Reducers and Actions",
+            "type": "Text",
+            "content": "# Redux Core Concepts\nReducers specify how the application's state changes in response to actions sent to the store.",
+            "order": 1
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,43 @@
+# Root dependencies
+**/node_modules/
+
+# Client dependencies & Yarn Berry
+client/.pnp
+client/.pnp.*
+client/.yarn/*
+!client/.yarn/patches
+!client/.yarn/plugins
+!client/.yarn/releases
+!client/.yarn/versions
+
+# Testing
+**/coverage/
+
+# Next.js build outputs
+client/.next/
+client/out/
+
+# Production outputs
+**/build/
+server/dist/
+
+# Prisma
+server/src/generated/
+prisma/migrations/
+
+# Misc and keys
+.DS_Store
+*.pem
+**/.vscode/
+**/.DS_Store
+
+# Debug logs
+*debug.log*
+yarn-error.log*
+
+# Environment files
+**/.env*
+
+# TypeScript
+*.tsbuildinfo
+client/next-env.d.ts
