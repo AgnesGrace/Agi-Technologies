@@ -27,6 +27,24 @@ export const getCourses = async (
         take: parsedLimit,
         orderBy: { createdAt: 'desc' },
         include: {
+          sections: {
+            orderBy: { order: 'asc' },
+            select: {
+              description: true,
+              title: true,
+              lectures: {
+                orderBy: { order: 'asc' },
+                select: {
+                  id: true,
+                  slug: true,
+                  title: true,
+                  type: true,
+                  videoUrl: true,
+                  order: true,
+                },
+              },
+            },
+          },
           instructor: {
             select: {
               name: true,

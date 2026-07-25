@@ -50,7 +50,9 @@ export default function CoursesList({ courses }: ICourseListProps) {
           >
             <CourseCard
               course={course}
-              onClick={() => router.push(`/search-courses/${course.id}`)}
+              onClick={() =>
+                router.push(`/courses/search-courses?slug=${course.slug}`)
+              }
             />
           </motion.div>
         ))}

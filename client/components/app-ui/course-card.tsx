@@ -49,11 +49,11 @@ export default function CourseCard({
           <p className="text-2xs font-medium text-gray-400 dark:text-neutral-500">
             By {course.instructor?.name || "Anonymous Instructor"}
           </p>
-          <div className="mt-1.5 flex items-baseline justify-between">
+          <div className="mt-1.5 flex items-baseline justify-between pt-2 pb-7">
             <span className="text-base font-black text-neutral-900 dark:text-white">
               {formatPrice(course.price)}
             </span>
-            <span className="text-3xs rounded bg-neutral-50 px-1.5 py-0.5 font-medium text-neutral-400 dark:bg-neutral-900 dark:text-neutral-500">
+            <span className="text-3xs rounded bg-neutral-50 p-1 font-medium text-neutral-400 dark:bg-neutral-900 dark:text-neutral-500">
               {course.enrollments?.length || 0} students
             </span>
           </div>

@@ -17,7 +17,7 @@ export default function Navbar() {
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-neutral-200/20 bg-white/70 p-4 backdrop-blur-xl dark:bg-black/60">
+    <header className="sticky top-0 z-50 w-full border-b border-neutral-200/20 bg-white/70 px-4 backdrop-blur-xl dark:bg-black/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between">
         <div className="flex items-center gap-4">
           <Link
@@ -44,7 +44,7 @@ export default function Navbar() {
         <div className="hidden md:block">
           <Link
             href="/signup"
-            className="rounded-full bg-black px-8 py-4 text-sm font-medium text-white transition hover:opacity-90 dark:bg-primary"
+            className="rounded-full bg-black px-6 py-2 text-sm font-medium text-white transition hover:opacity-90 dark:bg-primary"
           >
             Sign Up
           </Link>
@@ -60,7 +60,7 @@ export default function Navbar() {
 
       {isOpen && (
         <div className="border-t border-neutral-200 bg-white px-6 py-5 md:hidden dark:border-neutral-800 dark:bg-black">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-8">
             {links.map((link) => (
               <Link
                 key={link.name}
