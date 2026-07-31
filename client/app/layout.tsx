@@ -1,10 +1,11 @@
 import { Geist_Mono, Inter } from "next/font/google"
-
-import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 import StoreProvider from "@/state/redux"
 import { Toaster } from "sonner"
+import { ClerkProvider } from "@clerk/nextjs"
+
+import "./globals.css"
+import { ThemeProvider } from "@/components/theme-provider"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -31,10 +32,12 @@ export default function RootLayout({
     >
       <body>
         <ThemeProvider>
-          <StoreProvider>
-            {children}
-            <Toaster richColors position="top-right" />
-          </StoreProvider>
+          <ClerkProvider>
+            <StoreProvider>
+              {children}
+              <Toaster richColors position="top-right" />
+            </StoreProvider>
+          </ClerkProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -4,10 +4,16 @@ import Link from "next/link"
 import { Menu, X } from "lucide-react"
 import { useState } from "react"
 import { ModeToggle } from "../ui/mode-toggle"
+import { Show, UserButton, useUser } from "@clerk/nextjs"
+import { Button } from "../ui/button"
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
-
+  const { user } = useUser()
+  console.log(user?.publicMetadata)
+  const loggedInUserRole = user?.publicMetadata?.userRole as
+    "learner" | "teacher" | undefined
+  console.log(loggedInUserRole)
   const links = [
     { name: "Home", href: "/" },
     { name: "Services", href: "/services" },
@@ -41,21 +47,41 @@ export default function Navbar() {
           ))}
         </nav>
 
-        <div className="hidden md:block">
-          <Link
-            href="/signup"
-            className="rounded-full bg-black px-6 py-2 text-sm font-medium text-white transition hover:opacity-90 dark:bg-primary"
-          >
-            Sign Up
-          </Link>
-        </div>
+        <div className="flex items-center justify-center gap-4">
+          <div>
+            <Show when="signed-in">
+              <UserButton
+                showName={true}
+                userProfileMode="navigation"
+                userProfileUrl={
+                  loggedInUserRole === "learner"
+                    ? "/user/profile"
+                    : "/teacher/profile"
+                }
+              />
+            </Show>
+            <Show when="signed-out">
+              <Link
+                href="/signin"
+                className="cursor-pointer px-4 text-sm font-medium sm:h-12 sm:px-5 sm:text-base"
+              >
+                Sign in
+              </Link>
+              <Link href="/signup">
+                <Button className="h-10 cursor-pointer rounded-full bg-primary px-4 text-sm font-medium text-white sm:h-12 sm:px-5 sm:text-base">
+                  Sign up
+                </Button>
+              </Link>
+            </Show>
+          </div>
 
-        <button
-          className="cursor-pointer md:hidden"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+          <button
+            className="cursor-pointer md:hidden"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
 
       {isOpen && (
