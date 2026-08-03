@@ -2,12 +2,33 @@ export type CourseLevel = "Beginner" | "Intermediate" | "Advanced"
 export type CourseStatus = "Draft" | "Published"
 export type LectureType = "Video" | "Text" | "Quiz"
 
+export interface LoggedInUserSettings {
+  emailAlerts?: boolean
+  smsAlerts?: boolean
+  phoneCalls?: boolean
+  courseNotifications?: boolean
+  notificationFrequency?: "immediate" | "daily" | "weekly" | "monthly"
+}
+
 export interface User {
-  id: string
+  userId: string
+  firstName?: string
+  lastName?: string
+  username?: string
   email: string
-  name: string
-  imageUrl?: string | null
-  role: "STUDENT" | "INSTRUCTOR" | "ADMIN"
+  publicMetadata: {
+    userRole: "teacher" | "learner"
+  }
+  privateMetadata: {
+    settings?: LoggedInUserSettings
+    paymentMethods?: Array<PaymentMethod>
+    defaultPaymentMethodId?: string
+    stripeCustomerId?: string
+  }
+  unsafeMetadata: {
+    bio?: string
+    urls?: string[]
+  }
 }
 
 export interface Lecture {
@@ -53,6 +74,13 @@ export interface Transaction {
   userId: string
   courseId: number
   createdAt: string
+}
+
+interface PaymentMethod {
+  methodId: string
+  type: string
+  lastFour: string
+  expiry: string
 }
 
 export interface LectureProgress {

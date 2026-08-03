@@ -10,7 +10,7 @@ import { Button } from "../ui/button"
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const { user } = useUser()
-  console.log(user?.publicMetadata)
+  console.log(user, "nav")
   const loggedInUserRole = user?.publicMetadata?.userRole as
     "learner" | "teacher" | undefined
   console.log(loggedInUserRole)

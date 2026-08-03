@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { Show, UserButton, useUser } from "@clerk/nextjs"
 import { Bell, Menu, PanelLeft } from "lucide-react"
+import { ModeToggle } from "@/components/ui/mode-toggle"
+import { usePathname } from "next/navigation"
 
 interface IDashboardNavbar {
   isUserCoursePage?: boolean
@@ -13,24 +15,30 @@ interface IDashboardNavbar {
 export default function DashboardNavbar({
   isUserCoursePage,
 }: IDashboardNavbar) {
-  const { toggleSidebar } = useSidebar()
+  const pathname = usePathname()
+
   const { user, isLoaded } = useUser()
+
+  const isCoursePage = pathname.startsWith("/user/courses")
   const loggedInUserRole = user?.publicMetadata?.userRole as
     "learner" | "teacher"
 
   if (!isLoaded) return <Spinner />
 
   return (
-    <header className="light:bg-white sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b px-6 shadow-sm dark:bg-gray-950">
+    <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b bg-white px-6 shadow-sm dark:bg-gray-950">
       <div className="flex items-center gap-4">
         <SidebarTrigger />
 
-        <div className="hidden md:block">
-          <Input placeholder="Search courses..." className="w-72" />
-        </div>
+        {isCoursePage && (
+          <div className="hidden md:block">
+            <Input placeholder="Search courses..." className="w-72" />
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-4">
+        <ModeToggle />
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
 

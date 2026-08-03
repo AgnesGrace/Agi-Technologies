@@ -35,7 +35,7 @@ export default function RootLayout({
           <ClerkProvider>
             <StoreProvider>
               {children}
-              <Toaster richColors position="top-right" />
+              <Toaster richColors position="top-right" closeButton />
             </StoreProvider>
           </ClerkProvider>
         </ThemeProvider>
