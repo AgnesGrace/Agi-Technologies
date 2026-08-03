@@ -2,7 +2,7 @@ import express, { Router } from 'express';
 import {
   getCourseBySlug,
   getCourses,
-} from '../controllers/courseController.js';
+} from '../../controllers/course/courseController.js';
 
 const courseRouter: Router = express.Router();
 

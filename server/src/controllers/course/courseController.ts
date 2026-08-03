@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import db from '../db/db.js';
+import db from '../../db/db.js';
 
 interface GetCoursesQuery {
   category?: string;

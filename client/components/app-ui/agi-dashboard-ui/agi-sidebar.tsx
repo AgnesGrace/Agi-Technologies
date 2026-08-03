@@ -63,16 +63,16 @@ export default function AgiSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg">
-              <div className="flex h-10 w-full items-center justify-between group-data-[collapsible=icon]:mt-4 group-data-[collapsible=icon]:justify-center">
+              <div className="mt-6 flex h-10 w-full justify-between pl-4 group-data-[collapsible=icon]:mt-6 group-data-[collapsible=icon]:justify-center">
                 <Link
                   href="/"
-                  className="cursor-pointer text-lg font-extrabold group-data-[collapsible=icon]:hidden"
+                  className="cursor-pointer text-lg font-extrabold"
                 >
-                  AgiTech
+                  Agi
                 </Link>
 
                 <PanelLeft
-                  className="h-5 w-5 cursor-pointer"
+                  className="h-5 w-5 cursor-pointer group-data-[collapsible=icon]:hidden"
                   onClick={() => toggleSidebar()}
                 />
               </div>

@@ -5,6 +5,9 @@ import {
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react"
 import { Course } from "./api.types"
+import { User } from "@clerk/nextjs/server"
+import { Clerk } from "@clerk/clerk-js"
+import { toast } from "sonner"
 
 const customBaseQuery = async (
   args: string | FetchArgs,
@@ -13,9 +16,35 @@ const customBaseQuery = async (
 ) => {
   const baseQuery = fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
+
+    // It is a must to add the token to the headers here, this enable us to
+    //authorize users since we are using the clerk auth middleware from
+    // the backend.
+    prepareHeaders: async (headers) => {
+      const token = await window.Clerk?.session?.getToken()
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`)
+      }
+      return headers
+    },
   })
+
   try {
     const result: any = await baseQuery(args, api, extraOptions)
+    if (result.error) {
+      const errorMsg =
+        result.error.data?.message ||
+        result.error.status.toString() ||
+        "Ooops! Something went wrong"
+
+      toast.error(errorMsg)
+    }
+    const requestArgs = args as FetchArgs
+    const isMutationRequest = requestArgs.method && requestArgs.method !== "GET"
+
+    if (isMutationRequest) {
+      toast.success(result.data?.message || "Action completed Successfully")
+    }
     if (result.data) {
       result.data = result.data.data
     }
@@ -30,7 +59,7 @@ const customBaseQuery = async (
 export const api = createApi({
   baseQuery: customBaseQuery,
   reducerPath: "api",
-  tagTypes: ["Courses"],
+  tagTypes: ["Courses", "Users"],
   endpoints: (build) => ({
     getCourses: build.query<Course[], { category?: string }>({
       query: ({ category }) => ({
@@ -39,7 +68,16 @@ export const api = createApi({
       }),
       providesTags: ["Courses"],
     }),
+
+    updateUserInfo: build.mutation<User, Partial<User> & { userId: string }>({
+      query: ({ userId, ...updatedUserInfo }) => ({
+        url: `users/${userId}`,
+        method: "PUT",
+        body: updatedUserInfo,
+      }),
+      invalidatesTags: ["Users"],
+    }),
   }),
 })
 
-export const { useGetCoursesQuery } = api
+export const { useGetCoursesQuery, useUpdateUserInfoMutation } = api
