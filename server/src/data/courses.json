@@ -10,7 +10,7 @@
     "status": "Published",
     "sections": [
       {
-        "title": "Section 1: Architecture & Project Configuration",
+        "title": " Architecture & Project Configuration",
         "order": 1,
         "lectures": [
           {
@@ -28,7 +28,7 @@
         ]
       },
       {
-        "title": "Section 2: Authentication with Clerk",
+        "title": "Authentication with Clerk",
         "order": 2,
         "lectures": [
           {

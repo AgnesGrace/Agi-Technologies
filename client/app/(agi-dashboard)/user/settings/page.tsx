@@ -7,7 +7,7 @@ export default function Settings() {
       className="relative min-h-full bg-cover bg-center"
       style={{ backgroundImage: "url('/images/settings.jpeg')" }}
     >
-      <div className="absolute inset-0 bg-black/90" />
+      <div className="absolute inset-0 bg-black/85" />
       <div className="relative z-10 p-8 text-white">
         <Header title="Settings" className="text-white" />
         <UsernotificationSettings />
