@@ -77,7 +77,22 @@ export const api = createApi({
       }),
       invalidatesTags: ["Users"],
     }),
+
+    createStripeTransactionIntent: build.mutation<
+      { clientSecret: string },
+      { amount: number }
+    >({
+      query: ({ amount }) => ({
+        url: "/payments/stripe/transaction-intent",
+        method: "POST",
+        body: { amount },
+      }),
+    }),
   }),
 })
 
-export const { useGetCoursesQuery, useUpdateUserInfoMutation } = api
+export const {
+  useGetCoursesQuery,
+  useUpdateUserInfoMutation,
+  useCreateStripeTransactionIntentMutation,
+} = api
