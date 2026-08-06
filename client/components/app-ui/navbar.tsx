@@ -6,24 +6,26 @@ import { useState } from "react"
 import { ModeToggle } from "../ui/mode-toggle"
 import { Show, UserButton, useUser } from "@clerk/nextjs"
 import { Button } from "../ui/button"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const { user } = useUser()
-  console.log(user, "nav")
+  const isMobile = useIsMobile()
+
   const loggedInUserRole = user?.publicMetadata?.userRole as
     "learner" | "teacher" | undefined
-  console.log(loggedInUserRole)
+
   const links = [
     { name: "Home", href: "/" },
-    { name: "Services", href: "/services" },
-    { name: "Projects", href: "/projects" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
+    { name: "Paths", href: "#paths" },
+    { name: "Courses", href: "/courses" },
+    { name: "About", href: "/" },
+    { name: "Contact", href: "#footer" },
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-neutral-200/20 bg-white/70 px-4 backdrop-blur-xl dark:bg-black/60">
+    <header className="sticky top-0 z-50 w-full border-b border-neutral-200/20 bg-white/70 px-8 backdrop-blur-xl dark:bg-black/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between">
         <div className="flex items-center gap-4">
           <Link
@@ -51,7 +53,7 @@ export default function Navbar() {
           <div>
             <Show when="signed-in">
               <UserButton
-                showName={true}
+                showName={isMobile ? false : true}
                 userProfileMode="navigation"
                 userProfileUrl={
                   loggedInUserRole === "learner"
@@ -99,7 +101,7 @@ export default function Navbar() {
             ))}
 
             <Link
-              href="/signup"
+              href="/courses/search-courses"
               className="mt-3 rounded-full bg-black px-5 py-2 text-center text-white dark:bg-white dark:text-black"
             >
               Get Started

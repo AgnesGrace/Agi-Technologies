@@ -10,8 +10,6 @@ import { useGetCoursesQuery } from "@/state/api"
 export default function Courses() {
   const { data: courses, isLoading, isError } = useGetCoursesQuery({})
 
-  console.log(isLoading, isError)
-
   if (isLoading) return <CourseListSkeleton />
 
   return (

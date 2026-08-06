@@ -12,7 +12,7 @@ export const createStripeTransactionIntent = async (
   req: Request,
   res: Response,
 ) => {
-  let { amount } = req.body;
+  let amount = parseInt(req.body);
   if (!amount || amount <= 0) {
     amount = 50;
   }
@@ -26,12 +26,10 @@ export const createStripeTransactionIntent = async (
         allow_redirects: 'never',
       },
     });
-    return res
-      .status(200)
-      .json({
-        status: 'success',
-        data: { clientSecret: paymentIntent.client_secret },
-      });
+    return res.status(200).json({
+      status: 'success',
+      data: { clientSecret: paymentIntent.client_secret },
+    });
   } catch (error: any) {
     console.error('Error creating Stripe transaction intent:', error);
     return res

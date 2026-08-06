@@ -1,11 +1,11 @@
-import SignInUser from "@/components/app-ui/sign-in"
 import { Spinner } from "@/components/ui/spinner"
 import { Suspense } from "react"
+import CheckoutContent from "./checkout-content"
 
-export default function page() {
+export default function CheckoutStripe() {
   return (
     <Suspense fallback={<Spinner />}>
-      <SignInUser />
+      <CheckoutContent />
     </Suspense>
   )
 }

@@ -77,7 +77,6 @@ export const getCourses = async (
       data: courses,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       status: 'error',
       message:
@@ -91,9 +90,7 @@ export const getCourseBySlug = async (
   res: Response,
 ): Promise<void> => {
   try {
-    console.log(req.params);
     const { slug } = req.params;
-    console.log(slug);
 
     const course = await db.course.findUnique({
       where: { slug: String(slug) },

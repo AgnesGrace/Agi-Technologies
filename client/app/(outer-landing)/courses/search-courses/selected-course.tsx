@@ -6,7 +6,7 @@ import { BookOpen, GraduationCap } from "lucide-react"
 
 interface ISelectedCourseProps {
   course: Course
-  handleEnrollCourse: (courseId: number) => void
+  handleEnrollCourse: (courseSlug: string) => void
 }
 
 export default function SelectedCourse({
@@ -19,7 +19,7 @@ export default function SelectedCourse({
       0
     ) || 0
   return (
-    <aside className="flex h-full flex-col overflow-hidden rounded-xl border border-t-primary px-4 py-8">
+    <aside className="flex max-h-150 flex-col overflow-hidden rounded-xl border border-t-primary px-4 py-8">
       <div className="flex-1">
         <div>
           <h3 className="mb-2 text-2xl text-foreground">{course.title}</h3>
@@ -48,7 +48,7 @@ export default function SelectedCourse({
       <div className="mt-5 flex items-center justify-between">
         <p>{formatPrice(course.price)}</p>
         <Button
-          onClick={() => handleEnrollCourse(course.id)}
+          onClick={() => handleEnrollCourse(course.slug)}
           className="cursor-pointer"
         >
           Enroll Now

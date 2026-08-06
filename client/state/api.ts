@@ -69,6 +69,12 @@ export const api = createApi({
       providesTags: ["Courses"],
     }),
 
+    getCourse: build.query<Course, string>({
+      query: (slug) => `/courses/${slug}`,
+      transformResponse: (response: { course: Course }) => response.course,
+      providesTags: (result, error, slug) => [{ type: "Courses", slug }],
+    }),
+
     updateUserInfo: build.mutation<User, Partial<User> & { userId: string }>({
       query: ({ userId, ...updatedUserInfo }) => ({
         url: `users/${userId}`,
@@ -93,6 +99,7 @@ export const api = createApi({
 
 export const {
   useGetCoursesQuery,
+  useGetCourseQuery,
   useUpdateUserInfoMutation,
   useCreateStripeTransactionIntentMutation,
 } = api

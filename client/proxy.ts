@@ -31,7 +31,6 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   if (isTeacherRoute) {
-    console.log(loggedinUserRole)
     if (loggedinUserRole !== "teacher") {
       const url = new URL("/user/courses", req.url)
       return NextResponse.redirect(url)

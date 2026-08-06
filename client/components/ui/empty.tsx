@@ -105,12 +105,14 @@ export {
   EmptyMedia,
 }
 interface IEmptyCourseComponent {
+  title?: string
   description: string
   children: ReactNode
 }
 
 export function EmptyCourseComponent({
   description,
+  title,
   children,
 }: IEmptyCourseComponent) {
   return (
@@ -119,11 +121,13 @@ export function EmptyCourseComponent({
         <EmptyMedia variant="icon" className="text-primary">
           <BookOpen />
         </EmptyMedia>
-        <EmptyTitle>No Courses Yet</EmptyTitle>
+        <EmptyTitle>{title ? title : "No Courses Yet"}</EmptyTitle>
         <EmptyDescription>{description}</EmptyDescription>
       </EmptyHeader>
       <EmptyContent className="flex-row justify-center gap-2">
-        {children}
+        <div className="flex flex-col items-center justify-center gap-4">
+          {children}
+        </div>
       </EmptyContent>
     </Empty>
   )
