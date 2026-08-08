@@ -2,7 +2,7 @@ import { ReactNode } from "react"
 
 interface IHeader {
   title: string
-  className: string
+  className?: string
   headerEl?: ReactNode
 }
 

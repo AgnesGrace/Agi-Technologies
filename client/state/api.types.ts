@@ -61,11 +61,20 @@ export interface Course {
   level: CourseLevel
   status: CourseStatus
   instructorId: string
-  instructor: User
+  instructor: Instructor
   sections?: Section[]
   enrollments: Enrollment[]
 }
 
+interface GetCoursesData {
+  courses: Course[]
+  pagination: {
+    currentPage: number
+    pageSize: number
+    totalItems: number
+    totalPages: number
+  }
+}
 export interface Transaction {
   id: number
   transactionId: string
@@ -74,6 +83,7 @@ export interface Transaction {
   userId: string
   courseId: number
   createdAt: string
+  courseSlug: string
 }
 
 interface PaymentMethod {
@@ -83,6 +93,11 @@ interface PaymentMethod {
   expiry: string
 }
 
+interface Instructor {
+  imageUrl: string
+  name: string
+  role: "teacher" | "learner" | "admin"
+}
 export interface LectureProgress {
   id: number
   lectureId: number

@@ -13,7 +13,7 @@ export const updateUser = async (req: Request, res: Response) => {
       message: 'User id or the user info is missing',
     });
   }
-  console.log(auth);
+
   if (!auth.isAuthenticated) {
     return res.status(401).json({
       status: 'failed',

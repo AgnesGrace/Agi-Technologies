@@ -5,6 +5,7 @@ import cors from 'cors';
 import courseRouter from './routes/courses/courseRoute.js';
 import { clerkMiddleware, createClerkClient } from '@clerk/express';
 import userRouter from './routes/users/userRoutes.js';
+import paymentRouter from './routes/payments/transactionRoute.js';
 
 export const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY!,
@@ -25,5 +26,6 @@ app.use(clerkMiddleware());
 app.get('/', (req, res) => res.send('Welcome to Agi Technologies'));
 app.use('/api/v1/courses', courseRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/payments', paymentRouter);
 
 export default app;

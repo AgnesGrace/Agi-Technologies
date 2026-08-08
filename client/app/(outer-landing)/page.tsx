@@ -1,9 +1,9 @@
-import Hero from "@/components/app-ui/hero"
+import Landing from "@/components/app-ui/landing"
 
 export default function Page() {
   return (
-    <main>
-      <Hero />
+    <main className="mt-4">
+      <Landing />
     </main>
   )
 }

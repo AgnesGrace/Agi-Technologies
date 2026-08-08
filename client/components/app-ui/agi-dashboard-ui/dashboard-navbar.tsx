@@ -8,6 +8,7 @@ import { Show, UserButton, useUser } from "@clerk/nextjs"
 import { Bell, Menu, PanelLeft } from "lucide-react"
 import { ModeToggle } from "@/components/ui/mode-toggle"
 import { usePathname } from "next/navigation"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface IDashboardNavbar {
   isUserCoursePage?: boolean
@@ -18,6 +19,7 @@ export default function DashboardNavbar({
   const pathname = usePathname()
 
   const { user, isLoaded } = useUser()
+  const isMobile = useIsMobile()
 
   const isCoursePage = pathname.startsWith("/user/courses")
   const loggedInUserRole = user?.publicMetadata?.userRole as
@@ -28,7 +30,7 @@ export default function DashboardNavbar({
   return (
     <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b bg-white px-6 shadow-sm dark:bg-gray-950">
       <div className="flex items-center gap-4">
-        <SidebarTrigger />
+        {isMobile && <SidebarTrigger />}
 
         {isCoursePage && (
           <div className="hidden md:block">
@@ -47,7 +49,7 @@ export default function DashboardNavbar({
 
         <div className="flex items-center gap-3 rounded-lg px-2 py-1">
           <Show when="signed-in">
-            <span>Welcome! {user?.firstName}</span>
+            <span>Welcome back, {user?.firstName} !</span>
             <UserButton
               userProfileMode="navigation"
               userProfileUrl={

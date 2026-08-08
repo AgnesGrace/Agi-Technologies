@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation"
 export default function SignUpUser() {
   const searchParams = useSearchParams()
   const { user } = useUser()
-  const isCheckOutPage = searchParams.get("showSignUp") !== null
+  const isCheckOutPage = searchParams.get("displaySignup") !== null
   const courseSlug = searchParams.get("slug")
 
   const signInUrl = isCheckOutPage
@@ -14,7 +14,7 @@ export default function SignUpUser() {
 
   const getSignUpRedirectUrl = () => {
     if (isCheckOutPage) {
-      return `/checkout?stage=2&slug=${courseSlug}`
+      return `/checkout?stage=2&slug=${courseSlug}displaySignup=false`
     }
 
     const userRole = user?.publicMetadata?.userRole as string

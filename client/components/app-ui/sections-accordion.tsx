@@ -30,10 +30,6 @@ export default function SectionsAccordion({ sections }: ISectionsAccordion) {
                   </p>
                 </div>
               </div>
-
-              <span className="text-sm text-muted-foreground">
-                {section.lectures.length} lectures
-              </span>
             </div>
           </AccordionTrigger>
 
