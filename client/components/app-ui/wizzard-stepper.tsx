@@ -12,10 +12,12 @@ interface WizardStepperProps {
 }
 
 export default function WizardStepper({ currentStage }: WizardStepperProps) {
+  console.log(currentStage, "stage")
   return (
     <nav aria-label="Progress" className="w-full p-8">
       <ul className="flex items-start">
         {STAGES.map((stage, index) => {
+          console.log(stage, "stage")
           const completed = currentStage > stage.id
           const active = currentStage === stage.id
           const lastCompleted =

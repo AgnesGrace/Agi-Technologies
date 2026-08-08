@@ -66,6 +66,15 @@ export interface Course {
   enrollments: Enrollment[]
 }
 
+interface GetCoursesData {
+  courses: Course[]
+  pagination: {
+    currentPage: number
+    pageSize: number
+    totalItems: number
+    totalPages: number
+  }
+}
 export interface Transaction {
   id: number
   transactionId: string
@@ -74,6 +83,7 @@ export interface Transaction {
   userId: string
   courseId: number
   createdAt: string
+  courseSlug: string
 }
 
 interface PaymentMethod {

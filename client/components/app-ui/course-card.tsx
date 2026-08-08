@@ -19,6 +19,7 @@ export default function CourseCard({
   isSelected = false,
   onClick,
 }: ICourseCardProps) {
+  console.log(course, "card")
   return (
     <div className="h-full max-w-120 rounded-[22px] bg-white p-0 dark:bg-neutral-950">
       <article
@@ -59,7 +60,7 @@ export default function CourseCard({
           <div className="mt-6 space-y-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              <span>{course.enrollments?.length ?? 0} students</span>
+              <span>{course?._count.enrollments ?? 0} students</span>
             </div>
 
             <div className="flex items-center gap-2">

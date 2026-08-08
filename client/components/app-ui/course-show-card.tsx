@@ -4,7 +4,7 @@ import { formatPrice } from "@/lib/utils"
 
 export default function CourseShowCard({ course }: { course: Course }) {
   return (
-    <div className="space-y-10 sm:max-w-[80vw] md:max-w-[30vw]">
+    <div className="space-y-10 sm:max-w-[80vw] md:max-w-[35vw]">
       <div className="flex w-full flex-col gap-5 rounded-lg bg-gray-800 px-10 py-8">
         <div className="bg-white-50 mb-2">
           <Image

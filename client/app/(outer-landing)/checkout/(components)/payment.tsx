@@ -1,18 +1,78 @@
+"use client"
 import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js"
 import StripeProvider from "./stripe-provider"
 import useCheckoutStripe from "@/hooks/use-checkout-stripe"
 import useCurrentCourse from "@/hooks/use-current-course"
-import { useUser } from "@clerk/nextjs"
+import { useClerk, useUser } from "@clerk/nextjs"
 import CourseShowCard from "@/components/app-ui/course-show-card"
 import { CreditCard } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { FormEvent } from "react"
+import { toast } from "sonner"
+import { Transaction } from "@/state/api.types"
+import {
+  useCreateStripePaymentMutation,
+  useSyncClerkUserMutation,
+} from "@/state/api"
 
 function Payment() {
   const { user } = useUser()
+  const { signOut } = useClerk()
   const stripe = useStripe()
   const stripeElements = useElements()
   const { redirectUserTo } = useCheckoutStripe()
   const { course, slug } = useCurrentCourse()
+  const [syncClerkUser] = useSyncClerkUserMutation()
+
+  const [createStripeTransaction] = useCreateStripePaymentMutation()
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+
+    if (!stripeElements || !stripe) {
+      toast.error("Sorry! Stripe service is currently not available")
+      return
+    }
+
+    try {
+      await syncClerkUser().unwrap()
+
+      const paymentResult = await stripe.confirmPayment({
+        elements: stripeElements,
+        confirmParams: {
+          return_url: `${process.env.NEXT_PUBLIC_STRIPE_REDIRECT_URL}?slug=${slug}`,
+        },
+        redirect: "if_required",
+      })
+
+      if (paymentResult.error) {
+        toast.error(paymentResult.error.message || "Payment failed")
+        return
+      }
+
+      if (paymentResult.paymentIntent?.status === "succeeded") {
+        const transactionInfo: Partial<Transaction> = {
+          transactionId: paymentResult.paymentIntent.id,
+          userId: user.id,
+          paymentProvider: "stripe",
+          amount: course?.price || 0,
+          courseSlug: slug,
+        }
+
+        await createStripeTransaction(transactionInfo).unwrap()
+
+        redirectUserTo(3)
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error("Something went wrong")
+    }
+  }
+
+  const handleSignoutAndRedirect = async () => {
+    await signOut()
+    redirectUserTo(1)
+  }
 
   if (!course) return
   return (
@@ -24,7 +84,7 @@ function Payment() {
         <div className="basis-1/2">
           <form className="space-y-4">
             <div>
-              <p className="text-xl font-bold text-primary">
+              <p className="text-xl font-bold text-primary dark:text-blue-300">
                 Kindly fill the details below to complete your purchase.
               </p>
               <div className="mt-6 flex w-full flex-col gap-2">
@@ -40,24 +100,29 @@ function Payment() {
                 </div>
               </div>
             </div>
+            <div className="flex items-center justify-end gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                onClick={handleSignoutAndRedirect}
+              >
+                Switch Account
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                size="lg"
+                form="payment-form"
+                type="submit"
+                className="cursor-pointer"
+
+                disabled={!stripeElements || !stripe}
+              >
+                Pay
+              </Button>
+            </div>
           </form>
         </div>
-      </div>
-
-      <div className="flex items-center justify-end gap-4">
-        <Button type="button" variant="outline" size="lg">
-          Switch Account
-        </Button>
-        <Button
-          size="lg"
-          form="payment-form"
-          type="submit"
-          className="cursor-pointer"
-
-          disabled={!stripeElements || !stripe}
-        >
-          Pay
-        </Button>
       </div>
     </div>
   )

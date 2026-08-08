@@ -41,6 +41,7 @@ model Course {
   reviews      Review[]
   sections     Section[]
   transactions Transaction[]
+  progresses Progress[]
 }
 
 model Section {
@@ -64,7 +65,7 @@ model Lecture {
   sectionId  Int
   comments   Comment[]
   section    Section     @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  progresses Progress[]
+
 }
 
 model Comment {
@@ -106,12 +107,15 @@ model Progress {
   id          Int      @id @default(autoincrement())
   isCompleted Boolean  @default(false)
   updatedAt   DateTime @updatedAt
+  lastAccessedTimeStamp DateTime @updatedAt
+  overallProgress Float @default(0.0)
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   userId      String
-  lectureId   Int
-  lecture     Lecture  @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, lectureId])
+  @@unique([userId, courseId])
 }
 
 model Transaction {

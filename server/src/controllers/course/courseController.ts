@@ -1,86 +1,60 @@
 import { Request, Response } from 'express';
 import db from '../../db/db.js';
+import {
+  buildPagination,
+  PaginationQuery,
+  parsePagination,
+} from '../../utils/helper.js';
+import { courseCardSelect } from './courseSelect.js';
 
-interface GetCoursesQuery {
+interface GetCoursesQuery extends PaginationQuery {
   category?: string;
-  page?: string;
-  limit?: string;
 }
+
 export const getCourses = async (
   req: Request<{}, {}, {}, GetCoursesQuery>,
   res: Response,
 ): Promise<void> => {
   try {
-    const { category, page = '1', limit = '12' } = req.query;
-    const parsedPage = Math.max(1, parseInt(page, 10) || 1);
-    const parsedLimit = Math.max(1, Math.min(100, parseInt(limit, 10) || 12));
-    const skip = (parsedPage - 1) * parsedLimit;
+    const { category, page, limit } = req.query;
 
-    const filterCondition = category
-      ? { category: String(category).trim() }
+    const { currentPage, pageSize, skip } = parsePagination(page, limit);
+
+    const where = category
+      ? {
+          category: category.trim(),
+        }
       : {};
 
-    const [courses, totalCouses] = await db.$transaction([
+    const [courses, totalCourses] = await Promise.all([
       db.course.findMany({
-        where: filterCondition,
-        skip: skip,
-        take: parsedLimit,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          sections: {
-            orderBy: { order: 'asc' },
-            select: {
-              description: true,
-              title: true,
-              lectures: {
-                orderBy: { order: 'asc' },
-                select: {
-                  id: true,
-                  slug: true,
-                  title: true,
-                  type: true,
-                  videoUrl: true,
-                  order: true,
-                },
-              },
-            },
-          },
-          instructor: {
-            select: {
-              name: true,
-              imageUrl: true,
-            },
-          },
-          reviews: {
-            select: {
-              rating: true,
-            },
-          },
-          enrollments: {
-            select: {
-              userId: true,
-            },
-          },
+        where,
+        skip,
+        take: pageSize,
+        orderBy: {
+          createdAt: 'desc',
         },
+        select: courseCardSelect,
       }),
-      db.course.count({ where: filterCondition }),
+
+      db.course.count({
+        where,
+      }),
     ]);
+
     res.status(200).json({
       status: 'success',
-      results: courses.length,
-      pagination: {
-        totalItems: totalCouses,
-        totalPage: Math.ceil(totalCouses / parsedLimit),
-        currentPage: parsedPage,
-        pageSize: parsedLimit,
+      data: {
+        courses,
+        pagination: buildPagination(totalCourses, currentPage, pageSize),
       },
-      data: courses,
     });
   } catch (error) {
+    console.error('Error retrieving courses:', error);
+
     res.status(500).json({
       status: 'error',
-      message:
-        'An error occured while retrieveing this data, please try again later',
+      message: 'Unable to retrieve courses. Please try again later.',
     });
   }
 };
@@ -93,37 +67,54 @@ export const getCourseBySlug = async (
     const { slug } = req.params;
 
     const course = await db.course.findUnique({
-      where: { slug: String(slug) },
+      where: {
+        slug,
+      },
+
       include: {
         instructor: {
           select: {
+            id: true,
             name: true,
             imageUrl: true,
             role: true,
           },
         },
+
         sections: {
-          orderBy: { order: 'asc' },
+          orderBy: {
+            order: 'asc',
+          },
+
           include: {
             lectures: {
-              orderBy: { order: 'asc' },
+              orderBy: {
+                order: 'asc',
+              },
+
               select: {
                 id: true,
                 slug: true,
                 title: true,
                 type: true,
-                videoUrl: true,
                 order: true,
               },
             },
           },
         },
+
         reviews: {
           take: 5,
-          orderBy: { createdAt: 'desc' },
+          orderBy: {
+            createdAt: 'desc',
+          },
+
           include: {
             user: {
-              select: { name: true, imageUrl: true },
+              select: {
+                name: true,
+                imageUrl: true,
+              },
             },
           },
         },
@@ -145,12 +136,145 @@ export const getCourseBySlug = async (
       },
     });
   } catch (error) {
-    console.error('Enterprise Query Pipeline Error [getCourseBySlug]:', error);
+    console.error('Error retrieving course by slug:', error);
 
     res.status(500).json({
       status: 'error',
-      message:
-        'An internal server error occurred while retrieving the course details.',
+      message: 'Unable to retrieve course details. Please try again later.',
+    });
+  }
+};
+
+export const getEnrolledCoursesByUser = async (
+  req: Request<{ userId: string }, {}, {}, PaginationQuery>,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { userId } = req.params;
+    const { page, limit } = req.query;
+
+    if (!userId?.trim()) {
+      res.status(400).json({
+        status: 'fail',
+        message: 'User ID is required.',
+      });
+      return;
+    }
+
+    const { currentPage, pageSize, skip } = parsePagination(page, limit);
+
+    const where = {
+      userId: userId.trim(),
+    };
+
+    const [enrollments, totalEnrollments] = await Promise.all([
+      db.enrollment.findMany({
+        where,
+        skip,
+        take: pageSize,
+
+        orderBy: {
+          enrolledAt: 'desc',
+        },
+
+        select: {
+          id: true,
+          enrolledAt: true,
+
+          course: {
+            select: courseCardSelect,
+          },
+        },
+      }),
+
+      db.enrollment.count({
+        where,
+      }),
+    ]);
+
+    const courses = enrollments.map(({ course, id, enrolledAt }) => ({
+      ...course,
+
+      enrollment: {
+        id,
+        enrolledAt,
+      },
+    }));
+
+    res.status(200).json({
+      status: 'success',
+
+      data: {
+        courses,
+
+        pagination: buildPagination(totalEnrollments, currentPage, pageSize),
+      },
+    });
+  } catch (error) {
+    console.error('Error retrieving enrolled courses:', error);
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Unable to retrieve enrolled courses. Please try again later.',
+    });
+  }
+};
+
+export const getCoursesByInstructor = async (
+  req: Request<{ instructorId: string }, {}, {}, PaginationQuery>,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { instructorId } = req.params;
+    const { page, limit } = req.query;
+
+    if (!instructorId?.trim()) {
+      res.status(400).json({
+        status: 'fail',
+        message: 'Instructor ID is required.',
+      });
+      return;
+    }
+
+    const { currentPage, pageSize, skip } = parsePagination(page, limit);
+
+    const where = {
+      instructorId: instructorId.trim(),
+    };
+
+    const [courses, totalCourses] = await Promise.all([
+      db.course.findMany({
+        where,
+        skip,
+        take: pageSize,
+
+        orderBy: {
+          createdAt: 'desc',
+        },
+
+        select: courseCardSelect,
+      }),
+
+      db.course.count({
+        where,
+      }),
+    ]);
+
+    res.status(200).json({
+      status: 'success',
+
+      data: {
+        courses,
+
+        pagination: buildPagination(totalCourses, currentPage, pageSize),
+      },
+    });
+  } catch (error) {
+    console.error('Error retrieving instructor courses:', error);
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Unable to retrieve instructor courses. Please try again later.',
     });
   }
 };

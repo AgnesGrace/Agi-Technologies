@@ -9,6 +9,10 @@ import {
   StripeElementsOptions,
 } from "@stripe/stripe-js"
 import { ReactNode, useEffect, useState } from "react"
+import { useUser } from "@clerk/nextjs"
+import { toast } from "sonner"
+import { redirect } from "next/dist/server/api-utils"
+import { useRouter } from "next/navigation"
 
 if (!process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY) {
   throw new Error("Stripe public key must be provided")
@@ -25,17 +29,33 @@ export default function StripeProvider({ children }: { children: ReactNode }) {
   const [clientSecret, setClientSecret] = useState<string | "">("")
 
   const { course } = useCurrentCourse()
-
+  const { user } = useUser()
+  const router = useRouter()
+  const userRole =
+    user?.publicMetadata?.userRole === "teacher" ? "teacher" : "student"
   const [createStripeTransactionIntent] =
     useCreateStripeTransactionIntentMutation()
 
   useEffect(() => {
     if (!course) return
     const getPaymentIntent = async () => {
-      const result = await createStripeTransactionIntent({
-        amount: course?.price ?? 0,
-      }).unwrap()
-      setClientSecret(result.clientSecret)
+      try {
+        if (!user) return
+        const result = await createStripeTransactionIntent({
+          amount: course?.price ?? 0,
+          courseSlug: course.slug,
+          userId: user?.id,
+        }).unwrap()
+
+        setClientSecret(result.clientSecret)
+      } catch (error: any) {
+        toast.error(error?.data.message)
+        if (userRole === "teacher") {
+          router.push("/teacher/courses")
+        } else {
+          router.push("/user/courses")
+        }
+      }
     }
     getPaymentIntent()
   }, [createStripeTransactionIntent, course])

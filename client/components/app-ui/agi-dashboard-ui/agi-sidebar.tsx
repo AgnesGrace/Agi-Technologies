@@ -18,7 +18,6 @@ import {
   ChartNoAxesCombined,
   LogOut,
   PanelLeft,
-  ReceiptText,
   Route,
   Settings,
   User,
@@ -31,7 +30,6 @@ const navLinks = {
     { href: "/teacher/courses", icon: BookOpen, label: "Courses" },
     { href: "/teacher/profile", icon: User, label: "My Profile" },
     { href: "/teacher/settings", icon: Settings, label: "Settings" },
-    { href: "/teacher/billing", icon: BanknoteArrowUp, label: "billing" },
     { href: "/user/stats", icon: ChartNoAxesCombined, label: "Stats" },
   ],
   learner: [
@@ -39,7 +37,6 @@ const navLinks = {
     { href: "/user/my-path", icon: Route, label: "My Path" },
     { href: "/user/profile", icon: User, label: "My Profile" },
     { href: "/user/settings", icon: Settings, label: "Settings" },
-    { href: "/user/billing", icon: ReceiptText, label: "Billing" },
     { href: "/user/stats", icon: ChartNoAxesCombined, label: "Stats" },
   ],
 }

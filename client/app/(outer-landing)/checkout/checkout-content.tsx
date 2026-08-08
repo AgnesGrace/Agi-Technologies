@@ -15,6 +15,7 @@ export default function CheckoutContent() {
   const searchParams = useSearchParams()
 
   const slug = searchParams.get("slug")
+
   if (!isLoaded) return <Spinner />
 
   const renderStage = () => {

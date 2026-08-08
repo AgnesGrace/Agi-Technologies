@@ -4,7 +4,7 @@ import {
   FetchArgs,
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react"
-import { Course } from "./api.types"
+import { Course, Transaction, GetCoursesData } from "./api.types"
 import { User } from "@clerk/nextjs/server"
 import { Clerk } from "@clerk/clerk-js"
 import { toast } from "sonner"
@@ -61,10 +61,13 @@ export const api = createApi({
   reducerPath: "api",
   tagTypes: ["Courses", "Users"],
   endpoints: (build) => ({
-    getCourses: build.query<Course[], { category?: string }>({
-      query: ({ category }) => ({
+    getCourses: build.query<
+      GetCoursesData,
+      { category?: string; page?: number; limit?: number }
+    >({
+      query: ({ category, page = 1, limit = 12 }) => ({
         url: "courses",
-        params: { category },
+        params: { category, page, limit },
       }),
       providesTags: ["Courses"],
     }),
@@ -86,13 +89,28 @@ export const api = createApi({
 
     createStripeTransactionIntent: build.mutation<
       { clientSecret: string },
-      { amount: number }
+      { amount: number; userId: string; courseSlug: string }
     >({
-      query: ({ amount }) => ({
+      query: ({ amount, courseSlug, userId }) => ({
         url: "/payments/stripe/transaction-intent",
         method: "POST",
-        body: { amount },
+        body: { amount, courseSlug, userId },
       }),
+    }),
+
+    createStripePayment: build.mutation<Transaction, Partial<Transaction>>({
+      query: (transaction) => ({
+        url: "/payments/stripe",
+        method: "POST",
+        body: { transaction },
+      }),
+    }),
+    syncClerkUser: build.mutation<User, void>({
+      query: () => ({
+        url: "/users/me/sync-user",
+        method: "POST",
+      }),
+      invalidatesTags: ["Users"],
     }),
   }),
 })
@@ -102,4 +120,6 @@ export const {
   useGetCourseQuery,
   useUpdateUserInfoMutation,
   useCreateStripeTransactionIntentMutation,
+  useCreateStripePaymentMutation,
+  useSyncClerkUserMutation,
 } = api

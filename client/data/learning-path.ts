@@ -5,8 +5,6 @@ import {
   Layers3,
   Cloud,
   Workflow,
-  ShieldCheck,
-  ChartColumn,
 } from "lucide-react"
 
 export const learningPaths = [
