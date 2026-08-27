@@ -1,10 +1,12 @@
 import db from '../db/db.js';
+import { UserRole } from '../generated/prisma/client.js';
 
 interface ISyncClerkUser {
   id: string;
   email: string;
   name: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
+  role: UserRole;
 }
 
 export const syncClerkUser = async ({
@@ -12,6 +14,7 @@ export const syncClerkUser = async ({
   email,
   name,
   imageUrl,
+  role,
 }: ISyncClerkUser) => {
   return db.user.upsert({
     where: { id },
@@ -19,13 +22,14 @@ export const syncClerkUser = async ({
       email,
       name,
       imageUrl: imageUrl ?? null,
+      role,
     },
     create: {
       id,
       email,
       name,
       imageUrl: imageUrl ?? null,
-      role: 'STUDENT',
+      role,
     },
   });
 };

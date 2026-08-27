@@ -14,17 +14,24 @@ export const updateUser = async (req: Request, res: Response) => {
     });
   }
 
-  if (!auth.isAuthenticated) {
+  if (!auth.userId) {
     return res.status(401).json({
       status: 'failed',
       message: 'Unauthorized',
     });
   }
+
+  if (auth.userId !== userId) {
+    return res.status(403).json({
+      status: 'failed',
+      message: 'You can only update your own account',
+    });
+  }
+
   try {
-    const user = await clerkClient.users.updateUserMetadata(userId as string, {
+    const user = await clerkClient.users.updateUserMetadata(userId, {
       publicMetadata: {
-        userRole: userInfo.publicMetadata.userRole,
-        settings: userInfo.publicMetadata.settings,
+        settings: userInfo.publicMetadata?.settings,
       },
     });
     res.status(200).json({
@@ -33,7 +40,8 @@ export const updateUser = async (req: Request, res: Response) => {
       data: user,
     });
   } catch (err) {
-    res.status(401).json({
+    console.error('Error updating user:', err);
+    res.status(500).json({
       status: 'failed',
       message: 'Something went wrong while updating user',
     });

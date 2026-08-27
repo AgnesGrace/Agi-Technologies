@@ -4,7 +4,14 @@ import {
   FetchArgs,
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react"
-import { Course, Transaction, GetCoursesData } from "./api.types"
+import {
+  Course,
+  Transaction,
+  GetCoursesData,
+  GetCoursesParams,
+  GetTransactionsData,
+  PaginationParams,
+} from "./api.types"
 import { User } from "@clerk/nextjs/server"
 import { Clerk } from "@clerk/clerk-js"
 import { toast } from "sonner"
@@ -59,15 +66,12 @@ const customBaseQuery = async (
 export const api = createApi({
   baseQuery: customBaseQuery,
   reducerPath: "api",
-  tagTypes: ["Courses", "Users"],
+  tagTypes: ["Courses", "Users", "Transactions"],
   endpoints: (build) => ({
-    getCourses: build.query<
-      GetCoursesData,
-      { category?: string; page?: number; limit?: number }
-    >({
-      query: ({ category, page = 1, limit = 12 }) => ({
+    getCourses: build.query<GetCoursesData, GetCoursesParams>({
+      query: ({ category, search, page = 1, limit = 12 }) => ({
         url: "courses",
-        params: { category, page, limit },
+        params: { category, search, page, limit },
       }),
       providesTags: ["Courses"],
     }),
@@ -89,12 +93,12 @@ export const api = createApi({
 
     createStripeTransactionIntent: build.mutation<
       { clientSecret: string },
-      { amount: number; userId: string; courseSlug: string }
+      { courseSlug: string }
     >({
-      query: ({ amount, courseSlug, userId }) => ({
+      query: ({ courseSlug }) => ({
         url: "/payments/stripe/transaction-intent",
         method: "POST",
-        body: { amount, courseSlug, userId },
+        body: { courseSlug },
       }),
     }),
 
@@ -104,6 +108,7 @@ export const api = createApi({
         method: "POST",
         body: { transaction },
       }),
+      invalidatesTags: ["Courses", "Transactions"],
     }),
     syncClerkUser: build.mutation<User, void>({
       query: () => ({
@@ -111,6 +116,42 @@ export const api = createApi({
         method: "POST",
       }),
       invalidatesTags: ["Users"],
+    }),
+
+    getEnrolledCourses: build.query<GetCoursesData, PaginationParams | void>({
+      query: (params) => ({
+        url: "/courses/me/enrolled",
+        params: {
+          page: params?.page ?? 1,
+          limit: params?.limit ?? 12,
+        },
+      }),
+      providesTags: ["Courses"],
+    }),
+
+    getInstructorCourses: build.query<GetCoursesData, PaginationParams | void>({
+      query: (params) => ({
+        url: "/courses/instructor/me",
+        params: {
+          page: params?.page ?? 1,
+          limit: params?.limit ?? 12,
+        },
+      }),
+      providesTags: ["Courses"],
+    }),
+
+    getMyTransactions: build.query<
+      GetTransactionsData,
+      PaginationParams | void
+    >({
+      query: (params) => ({
+        url: "/payments/transactions",
+        params: {
+          page: params?.page ?? 1,
+          limit: params?.limit ?? 12,
+        },
+      }),
+      providesTags: ["Transactions"],
     }),
   }),
 })
@@ -122,4 +163,7 @@ export const {
   useCreateStripeTransactionIntentMutation,
   useCreateStripePaymentMutation,
   useSyncClerkUserMutation,
+  useGetEnrolledCoursesQuery,
+  useGetInstructorCoursesQuery,
+  useGetMyTransactionsQuery,
 } = api

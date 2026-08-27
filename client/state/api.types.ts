@@ -17,7 +17,7 @@ export interface User {
   username?: string
   email: string
   publicMetadata: {
-    userRole: "teacher" | "learner"
+    userRole: "instructor" | "learner" | "admin"
   }
   privateMetadata: {
     settings?: LoggedInUserSettings
@@ -63,17 +63,37 @@ export interface Course {
   instructorId: string
   instructor: Instructor
   sections?: Section[]
-  enrollments: Enrollment[]
+  enrollments?: Enrollment[]
+  isEnrolled?: boolean
+  _count?: {
+    sections: number
+    enrollments: number
+    reviews: number
+  }
 }
 
-interface GetCoursesData {
+export interface PaginationMeta {
+  currentPage: number
+  pageSize: number
+  totalItems: number
+  totalPages: number
+}
+
+export interface GetCoursesParams {
+  category?: string
+  search?: string
+  page?: number
+  limit?: number
+}
+
+export interface PaginationParams {
+  page?: number
+  limit?: number
+}
+
+export interface GetCoursesData {
   courses: Course[]
-  pagination: {
-    currentPage: number
-    pageSize: number
-    totalItems: number
-    totalPages: number
-  }
+  pagination: PaginationMeta
 }
 export interface Transaction {
   id: number
@@ -83,7 +103,13 @@ export interface Transaction {
   userId: string
   courseId: number
   createdAt: string
-  courseSlug: string
+  courseSlug?: string
+  course?: {
+    id: number
+    slug: string
+    title: string
+    image?: string | null
+  }
 }
 
 interface PaymentMethod {
@@ -96,7 +122,7 @@ interface PaymentMethod {
 interface Instructor {
   imageUrl: string
   name: string
-  role: "teacher" | "learner" | "admin"
+  role: "instructor" | "learner" | "admin"
 }
 export interface LectureProgress {
   id: number
@@ -110,4 +136,9 @@ export interface Enrollment {
   userId: string
   courseId: string
   course: Course
+}
+
+export interface GetTransactionsData {
+  transactions: Transaction[]
+  pagination: PaginationMeta
 }

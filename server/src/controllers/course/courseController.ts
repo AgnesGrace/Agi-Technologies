@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { getAuth } from '@clerk/express';
 import db from '../../db/db.js';
 import {
   buildPagination,
@@ -9,22 +10,60 @@ import { courseCardSelect } from './courseSelect.js';
 
 interface GetCoursesQuery extends PaginationQuery {
   category?: string;
+  search?: string;
 }
+
+const getEnrolledCourseIdSet = async (
+  userId: string,
+  courseIds: number[],
+): Promise<Set<number>> => {
+  if (courseIds.length === 0) return new Set();
+
+  const enrollments = await db.enrollment.findMany({
+    where: {
+      userId,
+      courseId: { in: courseIds },
+    },
+    select: { courseId: true },
+  });
+
+  return new Set(enrollments.map((enrollment) => enrollment.courseId));
+};
 
 export const getCourses = async (
   req: Request<{}, {}, {}, GetCoursesQuery>,
   res: Response,
 ): Promise<void> => {
   try {
-    const { category, page, limit } = req.query;
+    const { category, search, page, limit } = req.query;
 
     const { currentPage, pageSize, skip } = parsePagination(page, limit);
 
-    const where = category
-      ? {
-          category: category.trim(),
-        }
-      : {};
+    const searchTerm = search?.trim();
+
+    const where = {
+      status: 'Published' as const,
+      ...(category?.trim() ? { category: category.trim() } : {}),
+      ...(searchTerm
+        ? {
+            OR: [
+              { title: { contains: searchTerm, mode: 'insensitive' as const } },
+              {
+                description: {
+                  contains: searchTerm,
+                  mode: 'insensitive' as const,
+                },
+              },
+              {
+                category: {
+                  contains: searchTerm,
+                  mode: 'insensitive' as const,
+                },
+              },
+            ],
+          }
+        : {}),
+    };
 
     const [courses, totalCourses] = await Promise.all([
       db.course.findMany({
@@ -42,10 +81,21 @@ export const getCourses = async (
       }),
     ]);
 
+    const { userId } = getAuth(req);
+    const enrolledCourseIds = userId
+      ? await getEnrolledCourseIdSet(
+          userId,
+          courses.map((course) => course.id),
+        )
+      : new Set<number>();
+
     res.status(200).json({
       status: 'success',
       data: {
-        courses,
+        courses: courses.map((course) => ({
+          ...course,
+          isEnrolled: enrolledCourseIds.has(course.id),
+        })),
         pagination: buildPagination(totalCourses, currentPage, pageSize),
       },
     });
@@ -66,9 +116,10 @@ export const getCourseBySlug = async (
   try {
     const { slug } = req.params;
 
-    const course = await db.course.findUnique({
+    const course = await db.course.findFirst({
       where: {
         slug,
+        status: 'Published',
       },
 
       include: {
@@ -129,10 +180,29 @@ export const getCourseBySlug = async (
       return;
     }
 
+    const { userId } = getAuth(req);
+    let isEnrolled = false;
+
+    if (userId) {
+      const enrollment = await db.enrollment.findUnique({
+        where: {
+          userId_courseId: {
+            userId,
+            courseId: course.id,
+          },
+        },
+        select: { id: true },
+      });
+      isEnrolled = Boolean(enrollment);
+    }
+
     res.status(200).json({
       status: 'success',
       data: {
-        course,
+        course: {
+          ...course,
+          isEnrolled,
+        },
       },
     });
   } catch (error) {
@@ -146,17 +216,17 @@ export const getCourseBySlug = async (
 };
 
 export const getEnrolledCoursesByUser = async (
-  req: Request<{ userId: string }, {}, {}, PaginationQuery>,
+  req: Request<{}, {}, {}, PaginationQuery>,
   res: Response,
 ): Promise<void> => {
   try {
-    const { userId } = req.params;
+    const { userId } = getAuth(req);
     const { page, limit } = req.query;
 
-    if (!userId?.trim()) {
-      res.status(400).json({
+    if (!userId) {
+      res.status(401).json({
         status: 'fail',
-        message: 'User ID is required.',
+        message: 'Unauthorized',
       });
       return;
     }
@@ -164,7 +234,7 @@ export const getEnrolledCoursesByUser = async (
     const { currentPage, pageSize, skip } = parsePagination(page, limit);
 
     const where = {
-      userId: userId.trim(),
+      userId,
     };
 
     const [enrollments, totalEnrollments] = await Promise.all([
@@ -194,7 +264,7 @@ export const getEnrolledCoursesByUser = async (
 
     const courses = enrollments.map(({ course, id, enrolledAt }) => ({
       ...course,
-
+      isEnrolled: true,
       enrollment: {
         id,
         enrolledAt,
@@ -221,17 +291,17 @@ export const getEnrolledCoursesByUser = async (
 };
 
 export const getCoursesByInstructor = async (
-  req: Request<{ instructorId: string }, {}, {}, PaginationQuery>,
+  req: Request<{}, {}, {}, PaginationQuery>,
   res: Response,
 ): Promise<void> => {
   try {
-    const { instructorId } = req.params;
+    const { userId } = getAuth(req);
     const { page, limit } = req.query;
 
-    if (!instructorId?.trim()) {
-      res.status(400).json({
+    if (!userId) {
+      res.status(401).json({
         status: 'fail',
-        message: 'Instructor ID is required.',
+        message: 'Unauthorized',
       });
       return;
     }
@@ -239,7 +309,7 @@ export const getCoursesByInstructor = async (
     const { currentPage, pageSize, skip } = parsePagination(page, limit);
 
     const where = {
-      instructorId: instructorId.trim(),
+      instructorId: userId,
     };
 
     const [courses, totalCourses] = await Promise.all([

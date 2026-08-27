@@ -128,6 +128,11 @@ const isDirectExecution =
   process.argv[1] &&
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
+if (isDirectExecution && process.env.NODE_ENV === 'production') {
+  console.error('Refusing to run the destructive seed script in production.');
+  process.exit(1);
+}
+
 if (isDirectExecution) {
   seed().catch((error) => {
     console.error(

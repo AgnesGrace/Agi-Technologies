@@ -166,8 +166,9 @@ export default function Courses() {
         <>
           <div className="mb-12 flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                Courses
+              <p className="flex items-center gap-4 text-sm font-medium text-neutral-900 dark:text-white">
+                <span>Courses </span>
+                <ArrowRight />
               </p>
 
               <p className="text-sm text-neutral-500">
@@ -179,7 +180,7 @@ export default function Courses() {
               value={category ?? "all"}
               onValueChange={handleCategoryChange}
             >
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-60">
                 <SelectValue placeholder="All categories" />
               </SelectTrigger>
 

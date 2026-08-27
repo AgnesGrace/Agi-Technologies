@@ -1,14 +1,15 @@
 "use client"
 
-import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { Show, UserButton, useUser } from "@clerk/nextjs"
-import { Bell, Menu, PanelLeft } from "lucide-react"
+import { Bell } from "lucide-react"
 import { ModeToggle } from "@/components/ui/mode-toggle"
 import { usePathname } from "next/navigation"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { dashboardProfilePath, normalizeUserRole } from "@/lib/user-role"
 
 interface IDashboardNavbar {
   isUserCoursePage?: boolean
@@ -22,8 +23,9 @@ export default function DashboardNavbar({
   const isMobile = useIsMobile()
 
   const isCoursePage = pathname.startsWith("/user/courses")
-  const loggedInUserRole = user?.publicMetadata?.userRole as
-    "learner" | "teacher"
+  const loggedInUserRole = normalizeUserRole(
+    user?.publicMetadata?.userRole as string | undefined
+  )
 
   if (!isLoaded) return <Spinner />
 
@@ -49,14 +51,10 @@ export default function DashboardNavbar({
 
         <div className="flex items-center gap-3 rounded-lg px-2 py-1">
           <Show when="signed-in">
-            <span>Welcome back, {user?.firstName} !</span>
+            {!isMobile && <span>Welcome back, {user?.firstName} !</span>}
             <UserButton
               userProfileMode="navigation"
-              userProfileUrl={
-                loggedInUserRole === "learner"
-                  ? "/user/profile"
-                  : "/teacher/profile"
-              }
+              userProfileUrl={dashboardProfilePath(loggedInUserRole)}
             />
           </Show>
         </div>

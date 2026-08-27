@@ -13,13 +13,9 @@ export default function SelectedCourse({
   course,
   handleEnrollCourse,
 }: ISelectedCourseProps) {
-  const sectionCount = course.sections?.length ?? 0
+  const sectionCount = course?._count.sections ?? 0
 
-  const lectureCount =
-    course.sections?.reduce(
-      (acc, section) => acc + section.lectures.length,
-      0
-    ) ?? 0
+  const lectureCount = course?.sections[0]._count.lectures ?? 0
 
   return (
     <aside className="overflow-hidden rounded-2xl border bg-card shadow-sm">
@@ -54,14 +50,6 @@ export default function SelectedCourse({
             </span>
           </div>
         </div>
-
-        <div>
-          <p className="mb-3 text-sm font-medium">Course curriculum</p>
-
-          <div className="max-h-72 overflow-y-auto pr-2">
-            <SectionsAccordion sections={course.sections ?? []} />
-          </div>
-        </div>
       </div>
 
       <div className="flex items-center justify-between gap-4 border-t bg-muted/20 px-6 py-5">
@@ -76,8 +64,9 @@ export default function SelectedCourse({
           size="lg"
           onClick={() => handleEnrollCourse(course.slug)}
           className="min-w-32"
+          disabled={course.isEnrolled === true}
         >
-          Enroll now
+          {course.isEnrolled ? "Enrolled" : "Enroll now"}
         </Button>
       </div>
     </aside>

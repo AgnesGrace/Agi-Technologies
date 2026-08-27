@@ -19,7 +19,8 @@ export default function CourseCard({
   isSelected = false,
   onClick,
 }: ICourseCardProps) {
-  console.log(course, "card")
+  const isEnrolled = course.isEnrolled === true
+
   return (
     <div className="h-full max-w-120 rounded-[22px] bg-white p-0 dark:bg-neutral-950">
       <article
@@ -69,7 +70,7 @@ export default function CourseCard({
             </div>
 
             <p>
-              By
+              By{" "}
               <span className="font-medium text-foreground">
                 {course.instructor?.name || "Anonymous Instructor"}
               </span>
@@ -81,7 +82,9 @@ export default function CourseCard({
               {formatPrice(course.price)}
             </span>
 
-            <Badge variant="secondary">Enroll Now</Badge>
+            <Badge variant="secondary">
+              {isEnrolled ? "Enrolled" : "Enroll Now"}
+            </Badge>
           </div>
         </div>
       </article>

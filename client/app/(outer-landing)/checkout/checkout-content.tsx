@@ -8,6 +8,7 @@ import { useUser } from "@clerk/nextjs"
 import { useSearchParams } from "next/navigation"
 import CheckoutDetails from "./(components)/checkout-details"
 import Payment from "./(components)/payment"
+import CheckoutComplete from "./(components)/checkout-complete"
 
 export default function CheckoutContent() {
   const { isLoaded } = useUser()
@@ -25,7 +26,7 @@ export default function CheckoutContent() {
       case 2:
         return <Payment />
       case 3:
-        return "checkout-complete"
+        return <CheckoutComplete />
       default:
         return "checkout-details"
     }

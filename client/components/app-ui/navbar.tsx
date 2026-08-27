@@ -1,20 +1,29 @@
 "use client"
 
 import Link from "next/link"
-import { Menu, X } from "lucide-react"
+import { GraduationCap, Menu, Settings, X } from "lucide-react"
 import { useState } from "react"
 import { ModeToggle } from "../ui/mode-toggle"
 import { Show, UserButton, useUser } from "@clerk/nextjs"
 import { Button } from "../ui/button"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
+import {
+  dashboardCoursesPath,
+  dashboardProfilePath,
+  normalizeUserRole,
+} from "@/lib/user-role"
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
-  const { user } = useUser()
+  const { user, isLoaded } = useUser()
   const isMobile = useIsMobile()
+  const router = useRouter()
 
-  const loggedInUserRole = user?.publicMetadata?.userRole as
-    "learner" | "teacher" | undefined
+  const loggedInUserRole = normalizeUserRole(
+    user?.publicMetadata?.userRole as string | undefined
+  )
 
   const links = [
     { name: "Home", href: "/" },
@@ -24,6 +33,34 @@ export default function Navbar() {
     { name: "Contact", href: "#footer" },
   ]
 
+  const handleProfileNavigation = () => {
+    if (!isLoaded) return
+
+    if (!loggedInUserRole) {
+      toast.warning("Your do not have enough permisssion.", {
+        description:
+          "Please finish setting up your account before accessing your profile.",
+      })
+
+      return
+    }
+
+    router.push(dashboardProfilePath(loggedInUserRole))
+  }
+  const handleCoursesNavigation = () => {
+    if (!isLoaded) return
+
+    if (!loggedInUserRole) {
+      toast.warning("You do not have enough permissions.", {
+        description:
+          "Please start a course to access your personalized learning corner.",
+      })
+
+      return
+    }
+
+    router.push(dashboardCoursesPath(loggedInUserRole))
+  }
   return (
     <header className="sticky top-0 z-50 w-full border-b border-neutral-200/20 bg-white/70 px-8 backdrop-blur-xl dark:bg-black/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between">
@@ -52,15 +89,21 @@ export default function Navbar() {
         <div className="flex items-center justify-center gap-4">
           <div>
             <Show when="signed-in">
-              <UserButton
-                showName={isMobile ? false : true}
-                userProfileMode="navigation"
-                userProfileUrl={
-                  loggedInUserRole === "learner"
-                    ? "/user/profile"
-                    : "/teacher/profile"
-                }
-              />
+              <UserButton showName={!isMobile}>
+                <UserButton.MenuItems>
+                  <UserButton.Action
+                    label="Profile"
+                    labelIcon={<Settings className="h-4 w-4" />}
+                    onClick={handleProfileNavigation}
+                  />
+
+                  <UserButton.Action
+                    label="My Learning"
+                    labelIcon={<GraduationCap className="h-4 w-4" />}
+                    onClick={handleCoursesNavigation}
+                  />
+                </UserButton.MenuItems>
+              </UserButton>
             </Show>
             <Show when="signed-out">
               <Link

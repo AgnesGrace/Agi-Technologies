@@ -1,6 +1,8 @@
 "use client"
 import { SignUp, useUser } from "@clerk/nextjs"
 import { useSearchParams } from "next/navigation"
+import { toast } from "sonner"
+import { dashboardCoursesPath, normalizeUserRole } from "@/lib/user-role"
 
 export default function SignUpUser() {
   const searchParams = useSearchParams()
@@ -14,14 +16,21 @@ export default function SignUpUser() {
 
   const getSignUpRedirectUrl = () => {
     if (isCheckOutPage) {
-      return `/checkout?stage=2&slug=${courseSlug}displaySignup=false`
+      return `/checkout?stage=2&slug=${courseSlug}&displaySignup=false`
     }
 
-    const userRole = user?.publicMetadata?.userRole as string
-    if (userRole === "teacher") {
-      return "/teacher/courses"
-    } else {
+    const userRole = normalizeUserRole(
+      user?.publicMetadata?.userRole as string | undefined
+    )
+    if (userRole === "instructor" || userRole === "admin") {
+      return dashboardCoursesPath(userRole)
+    } else if (userRole === "learner") {
       return "/user/courses"
+    } else {
+      toast.error(
+        "You do not have enough permisions, please reach the site admin"
+      )
+      return "/"
     }
   }
 

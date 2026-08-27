@@ -12,7 +12,7 @@ model User {
   email           String        @unique
   name            String
   imageUrl        String?
-  role            UserRole      @default(STUDENT)
+  role            UserRole      @default(LEARNER)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   comments        Comment[]
@@ -28,7 +28,7 @@ model Course {
   slug         String        @unique
   title        String
   description  String?
-  category     String       
+  category     String
   image        String?
   price        Float         @default(0.0)
   level        CourseLevel   @default(Beginner)
@@ -41,7 +41,7 @@ model Course {
   reviews      Review[]
   sections     Section[]
   transactions Transaction[]
-  progresses Progress[]
+  progresses   Progress[]
 }
 
 model Section {
@@ -55,17 +55,16 @@ model Section {
 }
 
 model Lecture {
-  id         Int         @id @default(autoincrement())
-  slug       String      @unique
-  title      String
-  type       LectureType @default(Video)
-  content    String?
-  videoUrl   String?
-  order      Int
-  sectionId  Int
-  comments   Comment[]
-  section    Section     @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-
+  id        Int         @id @default(autoincrement())
+  slug      String      @unique
+  title     String
+  type      LectureType @default(Video)
+  content   String?
+  videoUrl  String?
+  order     Int
+  sectionId Int
+  comments  Comment[]
+  section   Section     @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 }
 
 model Comment {
@@ -104,16 +103,16 @@ model Enrollment {
 }
 
 model Progress {
-  id          Int      @id @default(autoincrement())
-  isCompleted Boolean  @default(false)
-  updatedAt   DateTime @updatedAt
+  id                    Int      @id @default(autoincrement())
+  isCompleted           Boolean  @default(false)
+  updatedAt             DateTime @updatedAt
   lastAccessedTimeStamp DateTime @updatedAt
-  overallProgress Float @default(0.0)
-  courseId Int
-  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  userId      String
+  overallProgress       Float    @default(0.0)
+  courseId              Int
+  course                Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  userId                String
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
 }
@@ -131,7 +130,7 @@ model Transaction {
 }
 
 enum UserRole {
-  STUDENT
+  LEARNER
   INSTRUCTOR
   ADMIN
 }

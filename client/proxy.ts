@@ -1,41 +1,61 @@
 import { clerkMiddleware } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
+import { dashboardCoursesPath, normalizeUserRole } from "@/lib/user-role"
+
+type SessionClaims = {
+  metadata?: {
+    userRole?: string
+  }
+}
 
 export default clerkMiddleware(async (auth, req) => {
   const { pathname } = req.nextUrl
 
   const isLearnerRoute = pathname.startsWith("/user")
-  const isTeacherRoute = pathname.startsWith("/teacher")
+  const isInstructorRoute = pathname.startsWith("/instructor")
 
-  const isProtectedRoute =
-    pathname.startsWith("/user") || pathname.startsWith("/teacher")
+  const isProtectedRoute = isLearnerRoute || isInstructorRoute
 
   const { sessionClaims, userId } = await auth()
 
   if (isProtectedRoute && !userId) {
     const signInUrl = new URL("/signin", req.url)
-    signInUrl.searchParams.set("redirect_url", pathname)
+
+    signInUrl.searchParams.set(
+      "redirect_url",
+      `${pathname}${req.nextUrl.search}`
+    )
 
     return NextResponse.redirect(signInUrl)
   }
 
-  const loggedinUserRole =
-    (sessionClaims?.metadata as { userRole: "teacher" | "learner" })
-      ?.userRole || "learner"
-
-  if (isLearnerRoute) {
-    if (loggedinUserRole !== "learner") {
-      const url = new URL("/teacher/courses", req.url)
-      return NextResponse.redirect(url)
-    }
+  if (!isProtectedRoute) {
+    return NextResponse.next()
   }
 
-  if (isTeacherRoute) {
-    if (loggedinUserRole !== "teacher") {
-      const url = new URL("/user/courses", req.url)
-      return NextResponse.redirect(url)
-    }
+  const loggedInUserRole = normalizeUserRole(
+    (sessionClaims as SessionClaims | null)?.metadata?.userRole
+  )
+
+  if (!loggedInUserRole) {
+    return NextResponse.redirect(new URL("/", req.url))
   }
+
+  if (isLearnerRoute && loggedInUserRole !== "learner") {
+    return NextResponse.redirect(
+      new URL(dashboardCoursesPath(loggedInUserRole), req.url)
+    )
+  }
+
+  if (
+    isInstructorRoute &&
+    loggedInUserRole !== "instructor" &&
+    loggedInUserRole !== "admin"
+  ) {
+    return NextResponse.redirect(new URL("/user/courses", req.url))
+  }
+
+  return NextResponse.next()
 })
 
 export const config = {

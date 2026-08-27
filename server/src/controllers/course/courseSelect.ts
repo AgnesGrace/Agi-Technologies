@@ -7,6 +7,7 @@ export const courseCardSelect = {
   category: true,
   level: true,
   price: true,
+  status: true,
   createdAt: true,
 
   instructor: {
@@ -22,6 +23,15 @@ export const courseCardSelect = {
       sections: true,
       enrollments: true,
       reviews: true,
+    },
+  },
+  sections: {
+    select: {
+      _count: {
+        select: {
+          lectures: true,
+        },
+      },
     },
   },
 } as const;

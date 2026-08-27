@@ -1,12 +1,36 @@
 export interface PaginationQuery {
   page?: string;
   limit?: string;
+  [key: string]:
+    | undefined
+    | string
+    | string[]
+    | PaginationQuery
+    | PaginationQuery[];
 }
 
-export const parsePagination = (page = '1', limit = '12') => {
-  const currentPage = Math.max(1, Number.parseInt(page, 10) || 1);
+const firstQueryValue = (value: unknown, fallback: string): string => {
+  if (typeof value === 'string' && value.length > 0) {
+    return value;
+  }
 
-  const pageSize = Math.min(100, Math.max(1, Number.parseInt(limit, 10) || 12));
+  if (Array.isArray(value) && typeof value[0] === 'string' && value[0]) {
+    return value[0];
+  }
+
+  return fallback;
+};
+
+export const parsePagination = (page?: unknown, limit?: unknown) => {
+  const currentPage = Math.max(
+    1,
+    Number.parseInt(firstQueryValue(page, '1'), 10) || 1,
+  );
+
+  const pageSize = Math.min(
+    100,
+    Math.max(1, Number.parseInt(firstQueryValue(limit, '12'), 10) || 12),
+  );
 
   return {
     currentPage,
@@ -21,7 +45,7 @@ export const buildPagination = (
   pageSize: number,
 ) => ({
   totalItems,
-  totalPages: Math.ceil(totalItems / pageSize),
+  totalPages: Math.ceil(totalItems / pageSize) || 0,
   currentPage,
   pageSize,
 });
