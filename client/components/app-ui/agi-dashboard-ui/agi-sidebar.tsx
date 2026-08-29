@@ -25,6 +25,7 @@ import {
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { normalizeUserRole } from "@/lib/user-role"
+import { BrandMark } from "@/components/app-ui/brand-mark"
 
 const navLinks = {
   instructor: [
@@ -75,12 +76,10 @@ export default function AgiSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg">
               <div className="mt-6 flex h-10 w-full items-center justify-between pl-4 group-data-[collapsible=icon]:mt-6 group-data-[collapsible=icon]:justify-center">
-                <Link
-                  href="/"
-                  className="cursor-pointer text-lg font-extrabold"
-                >
-                  Agi Technologies
-                </Link>
+                <BrandMark
+                  className="group-data-[collapsible=icon]:gap-0"
+                  showWordmark
+                />
 
                 <PanelLeft
                   className="h-5 w-5 cursor-pointer group-data-[collapsible=icon]:hidden"

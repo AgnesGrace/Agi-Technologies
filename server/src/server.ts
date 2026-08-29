@@ -6,11 +6,12 @@ validateEnv();
 
 import app from './index.js';
 import db from './db/db.js';
+import { logger } from './utils/logger.js';
 
 const PORT = process.env.PORT || 8001;
 
 const server = app.listen(PORT, () =>
-  console.log(`App is listening on port ${PORT}`),
+  logger.info({ port: PORT }, 'App is listening'),
 );
 
 const shutdown = () => {

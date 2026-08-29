@@ -13,8 +13,10 @@ export default clerkMiddleware(async (auth, req) => {
 
   const isLearnerRoute = pathname.startsWith("/user")
   const isInstructorRoute = pathname.startsWith("/instructor")
+  const isLearnRoute = pathname.startsWith("/learn")
 
-  const isProtectedRoute = isLearnerRoute || isInstructorRoute
+  const isProtectedRoute =
+    isLearnerRoute || isInstructorRoute || isLearnRoute
 
   const { sessionClaims, userId } = await auth()
 
@@ -30,6 +32,11 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   if (!isProtectedRoute) {
+    return NextResponse.next()
+  }
+
+  // Course player is shared — enrolled learners + instructor/admin preview.
+  if (isLearnRoute) {
     return NextResponse.next()
   }
 

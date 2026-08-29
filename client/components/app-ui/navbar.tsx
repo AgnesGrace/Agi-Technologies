@@ -6,6 +6,7 @@ import { useState } from "react"
 import { ModeToggle } from "../ui/mode-toggle"
 import { Show, UserButton, useUser } from "@clerk/nextjs"
 import { Button } from "../ui/button"
+import { BrandMark } from "@/components/app-ui/brand-mark"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -65,12 +66,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-neutral-200/20 bg-white/70 px-8 backdrop-blur-xl dark:bg-black/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link
-            href="/"
-            className="text-xl font-bold tracking-tight text-neutral-900 dark:text-white"
-          >
-            AgiTech
-          </Link>
+          <BrandMark />
           <ModeToggle />
         </div>
 
@@ -121,8 +117,9 @@ export default function Navbar() {
           </div>
 
           <button
-            className="cursor-pointer md:hidden"
+            className="cursor-pointer text-white md:hidden"
             onClick={() => setIsOpen(!isOpen)}
+            aria-label={isOpen ? "Close menu" : "Open menu"}
           >
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -130,24 +127,25 @@ export default function Navbar() {
       </div>
 
       {isOpen && (
-        <div className="border-t border-neutral-200 bg-white px-6 py-5 md:hidden dark:border-neutral-800 dark:bg-black">
-          <div className="flex flex-col gap-8">
+        <div className="border-t border-white/10 bg-[oklch(0.16_0.03_250)] px-6 py-5 md:hidden">
+          <div className="flex flex-col gap-6">
             {links.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
                 onClick={() => setIsOpen(false)}
-                className="text-neutral-700 transition hover:text-black dark:text-neutral-300 dark:hover:text-white"
+                className="text-white/85 transition hover:text-white"
               >
                 {link.name}
               </Link>
             ))}
 
             <Link
-              href="/courses/search-courses"
-              className="mt-3 rounded-full bg-black px-5 py-2 text-center text-white dark:bg-white dark:text-black"
+              href="/courses"
+              onClick={() => setIsOpen(false)}
+              className="mt-2 rounded-lg bg-white px-5 py-2.5 text-center text-[oklch(0.18_0.03_250)]"
             >
-              Get Started
+              Get started
             </Link>
           </div>
         </div>

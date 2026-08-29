@@ -46,5 +46,6 @@
     // "moduleDetection": "force",
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "src/data/**/*.json"]
+  "include": ["src/**/*", "src/data/**/*.json"],
+  "exclude": ["src/**/*.test.ts"]
 }

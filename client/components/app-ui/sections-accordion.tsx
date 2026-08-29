@@ -35,7 +35,7 @@ export default function SectionsAccordion({ sections }: ISectionsAccordion) {
 
           <AccordionContent className="border-t bg-muted/30 p-4">
             <ul className="space-y-2">
-              {section.lectures.map((lecture) => (
+              {(section.lectures ?? []).map((lecture) => (
                 <li
                   key={lecture.id}
                   className="flex items-center justify-between rounded-lg px-3 py-2 transition-colors hover:bg-background"

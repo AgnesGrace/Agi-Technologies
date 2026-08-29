@@ -90,10 +90,12 @@ export default function Courses() {
     })
   }
 
-  const handleCategoryChange = (selectedCategory: string) => {
-    updateSearchParams({
-      category: selectedCategory === "all" ? null : selectedCategory,
-    })
+  const handleCategoryChange = (selectedCategory: string | null) => {
+    if (!selectedCategory || selectedCategory === "all") {
+      updateSearchParams({ page: 1, category: null })
+      return
+    }
+    updateSearchParams({ page: 1, category: selectedCategory })
   }
 
   if (isLoading) {

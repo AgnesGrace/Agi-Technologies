@@ -4,9 +4,14 @@ import Header from "@/components/app-ui/agi-dashboard-ui/header"
 import CourseCard from "@/components/app-ui/course-card"
 import { Pagination } from "@/components/app-ui/pagination"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { EmptyCourseComponent } from "@/components/ui/empty"
 import { Spinner } from "@/components/ui/spinner"
-import { useGetInstructorCoursesQuery } from "@/state/api"
+import {
+  useCreateCourseMutation,
+  useGetInstructorCoursesQuery,
+} from "@/state/api"
+import { Plus } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 
 export default function InstructorCoursesPage() {
@@ -18,9 +23,19 @@ export default function InstructorCoursesPage() {
     page,
     limit: 12,
   })
+  const [createCourse, { isLoading: isCreating }] = useCreateCourseMutation()
 
   const courses = data?.courses ?? []
   const pagination = data?.pagination
+
+  const handleCreate = async () => {
+    try {
+      const result = await createCourse().unwrap()
+      router.push(`/instructor/courses/${result.course.id}/editor`)
+    } catch {
+      //TODO
+    }
+  }
 
   if (isLoading) return <Spinner />
 
@@ -28,18 +43,29 @@ export default function InstructorCoursesPage() {
     <>
       <Header
         title="My Courses"
+        className="font-display"
         headerEl={
-          <p className="text-sm text-muted-foreground">
-            Drafts stay private until you publish them.
-          </p>
+          <Button onClick={handleCreate} disabled={isCreating}>
+            <Plus className="size-4" />
+            Create course
+          </Button>
         }
       />
 
+      <p className="-mt-2 mb-8 text-sm text-muted-foreground">
+        Drafts stay private until you publish. Click a course to open the
+        editor.
+      </p>
+
       {courses.length === 0 ? (
         <EmptyCourseComponent description="You have not created any courses yet.">
-          <p>
-            Published courses appear in the public catalog. Drafts stay here.
+          <p className="mb-4 text-sm text-muted-foreground">
+            Start with an empty draft, then build sections and lessons.
           </p>
+          <Button onClick={handleCreate} disabled={isCreating}>
+            <Plus className="size-4" />
+            Create your first course
+          </Button>
         </EmptyCourseComponent>
       ) : (
         <>
@@ -52,7 +78,7 @@ export default function InstructorCoursesPage() {
                 <CourseCard
                   course={course}
                   onClick={() =>
-                    router.push(`/courses/search-courses?slug=${course.slug}`)
+                    router.push(`/instructor/courses/${course.id}/editor`)
                   }
                 />
               </div>

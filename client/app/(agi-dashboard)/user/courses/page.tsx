@@ -42,9 +42,7 @@ export default function UserCoursesPage() {
               <CourseCard
                 key={course.id}
                 course={course}
-                onClick={() =>
-                  router.push(`/courses/search-courses?slug=${course.slug}`)
-                }
+                onClick={() => router.push(`/learn/${course.id}`)}
               />
             ))}
           </div>

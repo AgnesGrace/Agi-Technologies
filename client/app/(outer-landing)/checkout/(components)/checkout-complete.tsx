@@ -18,11 +18,17 @@ export default function CheckoutComplete() {
           : "Your payment succeeded and the course is unlocked."}
       </p>
       <div className="flex gap-3">
+        {course ? (
+          <Link href={`/learn/${course.id}`}>
+            <Button>Start learning</Button>
+          </Link>
+        ) : (
+          <Link href="/user/courses">
+            <Button>Go to my courses</Button>
+          </Link>
+        )}
         <Link href="/user/courses">
-          <Button>Go to my courses</Button>
-        </Link>
-        <Link href="/user/billing">
-          <Button variant="outline">View receipt</Button>
+          <Button variant="outline">My courses</Button>
         </Link>
       </div>
     </div>

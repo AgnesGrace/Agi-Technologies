@@ -6,23 +6,25 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const formatPrice = (
-  amount: number,
+  amountInCents: number,
   currency = "USD",
   locale = "en-US"
 ): string => {
-  if (typeof amount !== "number" || isNaN(amount)) {
+  if (typeof amountInCents !== "number" || isNaN(amountInCents)) {
     return "-"
   }
-  if (amount === 0) return "Free"
+  if (amountInCents === 0) return "Free"
+
+  const amount = amountInCents / 100
 
   try {
     return new Intl.NumberFormat(locale, {
       style: "currency",
       currency,
-      minimumFractionDigits: amount % 1 === 0 ? 0 : 2,
+      minimumFractionDigits: amountInCents % 100 === 0 ? 0 : 2,
       maximumFractionDigits: 2,
     }).format(amount)
-  } catch (error) {
+  } catch {
     return `${currency} ${amount.toFixed(2)}`
   }
 }

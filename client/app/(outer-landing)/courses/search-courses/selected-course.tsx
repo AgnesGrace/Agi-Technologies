@@ -1,8 +1,8 @@
-import SectionsAccordion from "@/components/app-ui/sections-accordion"
-import { Button } from "@/components/ui/button"
-import { formatPrice } from "@/lib/utils"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { cn, formatPrice } from "@/lib/utils"
 import { Course } from "@/state/api.types"
 import { BookOpen, GraduationCap, Layers3 } from "lucide-react"
+import Link from "next/link"
 
 interface ISelectedCourseProps {
   course: Course
@@ -13,9 +13,13 @@ export default function SelectedCourse({
   course,
   handleEnrollCourse,
 }: ISelectedCourseProps) {
-  const sectionCount = course?._count.sections ?? 0
+  const sectionCount = course._count?.sections ?? 0
 
-  const lectureCount = course?.sections[0]._count.lectures ?? 0
+  const lectureCount =
+    course.sections?.reduce(
+      (total, section) => total + (section._count?.lectures ?? 0),
+      0
+    ) ?? 0
 
   return (
     <aside className="overflow-hidden rounded-2xl border bg-card shadow-sm">
@@ -60,14 +64,22 @@ export default function SelectedCourse({
           </p>
         </div>
 
-        <Button
-          size="lg"
-          onClick={() => handleEnrollCourse(course.slug)}
-          className="min-w-32"
-          disabled={course.isEnrolled === true}
-        >
-          {course.isEnrolled ? "Enrolled" : "Enroll now"}
-        </Button>
+        {course.isEnrolled ? (
+          <Link
+            href={`/learn/${course.id}`}
+            className={cn(buttonVariants({ size: "lg" }), "min-w-32")}
+          >
+            Continue learning
+          </Link>
+        ) : (
+          <Button
+            size="lg"
+            onClick={() => handleEnrollCourse(course.slug)}
+            className="min-w-32"
+          >
+            Enroll now
+          </Button>
+        )}
       </div>
     </aside>
   )

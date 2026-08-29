@@ -1,4 +1,5 @@
-import { Geist_Mono, Inter } from "next/font/google"
+import type { Metadata } from "next"
+import { Geist_Mono, Plus_Jakarta_Sans, Syne } from "next/font/google"
 import { cn } from "@/lib/utils"
 import StoreProvider from "@/state/redux"
 import { Toaster } from "sonner"
@@ -7,12 +8,34 @@ import { ClerkProvider } from "@clerk/nextjs"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+})
+
+const syne = Syne({
+  subsets: ["latin"],
+  variable: "--font-display",
+})
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
 })
+
+export const metadata: Metadata = {
+  title: {
+    default: "AgiTech",
+    template: "%s · AgiTech",
+  },
+  description:
+    "AgiTech: structured tech courses, career paths, and hire-ready skills.",
+  applicationName: "AgiTech",
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/apple-icon.png" }],
+  },
+}
 
 export default function RootLayout({
   children,
@@ -24,10 +47,10 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       className={cn(
-        "antialiased",
-        fontMono.variable,
-        "font-sans",
-        inter.variable
+        "font-sans antialiased",
+        plusJakarta.variable,
+        syne.variable,
+        fontMono.variable
       )}
     >
       <body>

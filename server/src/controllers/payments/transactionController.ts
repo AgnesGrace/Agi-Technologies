@@ -4,6 +4,8 @@ import { getAuth } from '@clerk/express';
 import db from '../../db/db.js';
 import { fulfillPaidEnrollment } from '../../services/fulfill-enrollment.js';
 import { buildPagination, parsePagination } from '../../utils/helper.js';
+import { logger } from '../../utils/logger.js';
+import { isPurchasableAmount } from '../../utils/money.js';
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 if (!stripeSecretKey) {
@@ -11,8 +13,6 @@ if (!stripeSecretKey) {
 }
 
 const stripe = new Stripe(stripeSecretKey);
-
-const dollarsFromCents = (amountInCents: number) => amountInCents / 100;
 
 const assertOwnedPaymentIntent = (
   paymentIntent: Stripe.PaymentIntent,
@@ -32,6 +32,69 @@ const assertOwnedPaymentIntent = (
   }
 
   return null;
+};
+
+/**
+ * Reuse an open PaymentIntent for the same user+course+amount when possible.
+ * Falls back to Stripe idempotency so React remounts do not mint new intents.
+ */
+const getOrCreatePaymentIntent = async ({
+  userId,
+  courseId,
+  courseSlug,
+  amountInCents,
+}: {
+  userId: string;
+  courseId: number;
+  courseSlug: string;
+  amountInCents: number;
+}) => {
+  try {
+    const search = await stripe.paymentIntents.search({
+      query: [
+        `metadata["userId"]:"${userId}"`,
+        `metadata["courseId"]:"${courseId}"`,
+        `status:"requires_payment_method"`,
+      ].join(' AND '),
+      limit: 5,
+    });
+
+    const reusable = search.data.find(
+      (intent) =>
+        intent.amount === amountInCents &&
+        intent.currency === 'usd' &&
+        Boolean(intent.client_secret),
+    );
+
+    if (reusable) {
+      return reusable;
+    }
+  } catch (error) {
+    logger.warn(
+      { err: error, requestType: 'payment_intent_search' },
+      'PaymentIntent search unavailable; falling back to create',
+    );
+  }
+
+  return stripe.paymentIntents.create(
+    {
+      amount: amountInCents,
+      currency: 'usd',
+      automatic_payment_methods: {
+        enabled: true,
+        allow_redirects: 'never',
+      },
+      metadata: {
+        userId,
+        courseId: String(courseId),
+        courseSlug,
+      },
+    },
+    {
+      // Same checkout remount within 24h returns the same intent.
+      idempotencyKey: `checkout:${userId}:${courseId}:${amountInCents}`,
+    },
+  );
 };
 
 export const createStripeTransactionIntent = async (
@@ -90,35 +153,54 @@ export const createStripeTransactionIntent = async (
       });
     }
 
-    const amountInCents = Math.round(course.price * 100);
+    // Course.price is already integer cents.
+    const amountInCents = course.price;
 
-    if (!Number.isFinite(amountInCents) || amountInCents < 50) {
+    if (!isPurchasableAmount(amountInCents)) {
       return res.status(400).json({
         status: 'fail',
         message: 'This course cannot be purchased through Stripe checkout.',
       });
     }
 
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amountInCents,
-      currency: 'usd',
-      automatic_payment_methods: {
-        enabled: true,
-        allow_redirects: 'never',
-      },
-      metadata: {
-        userId,
-        courseId: String(course.id),
-        courseSlug: course.slug,
-      },
+    const paymentIntent = await getOrCreatePaymentIntent({
+      userId,
+      courseId: course.id,
+      courseSlug: course.slug,
+      amountInCents,
     });
+
+    if (paymentIntent.status === 'succeeded') {
+      await fulfillPaidEnrollment({
+        userId,
+        courseId: course.id,
+        transactionId: paymentIntent.id,
+        amount: paymentIntent.amount,
+      });
+
+      return res.status(409).json({
+        status: 'fail',
+        code: 'ALREADY_ENROLLED',
+        message: 'Payment already completed for this course.',
+      });
+    }
+
+    if (!paymentIntent.client_secret) {
+      return res.status(500).json({
+        status: 'failed',
+        message: 'Unable to start checkout.',
+      });
+    }
 
     return res.status(200).json({
       status: 'success',
       data: { clientSecret: paymentIntent.client_secret },
     });
   } catch (error) {
-    console.error('Error creating Stripe transaction intent:', error);
+    logger.error(
+      { err: error, requestId: req.requestId },
+      'Error creating Stripe transaction intent',
+    );
     return res
       .status(500)
       .json({ status: 'failed', error: 'Failed to create transaction intent' });
@@ -176,7 +258,7 @@ export const createStripeTransaction = async (req: Request, res: Response) => {
       userId,
       courseId,
       transactionId: paymentIntent.id,
-      amount: dollarsFromCents(paymentIntent.amount),
+      amount: paymentIntent.amount,
     });
 
     return res.status(result.alreadyProcessed ? 200 : 201).json({
@@ -187,7 +269,10 @@ export const createStripeTransaction = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    console.error('Checkout controller exception:', error);
+    logger.error(
+      { err: error, requestId: req.requestId },
+      'Checkout enrollment failed',
+    );
 
     return res.status(500).json({
       status: 'error',
@@ -200,7 +285,7 @@ export const stripeWebhook = async (req: Request, res: Response) => {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!webhookSecret) {
-    console.error('STRIPE_WEBHOOK_SECRET is not set');
+    logger.error('STRIPE_WEBHOOK_SECRET is not set');
     return res.status(500).json({
       status: 'error',
       message: 'Webhook is not configured.',
@@ -221,7 +306,7 @@ export const stripeWebhook = async (req: Request, res: Response) => {
   try {
     event = stripe.webhooks.constructEvent(req.body, signature, webhookSecret);
   } catch (error) {
-    console.error('Stripe webhook signature verification failed:', error);
+    logger.warn({ err: error }, 'Stripe webhook signature verification failed');
     return res.status(400).json({
       status: 'fail',
       message: 'Invalid webhook signature.',
@@ -235,22 +320,23 @@ export const stripeWebhook = async (req: Request, res: Response) => {
       const courseId = Number(paymentIntent.metadata?.courseId);
 
       if (!userId || !Number.isFinite(courseId)) {
-        console.error('Succeeded payment intent missing metadata', {
-          id: paymentIntent.id,
-        });
+        logger.error(
+          { paymentIntentId: paymentIntent.id },
+          'Succeeded payment intent missing metadata',
+        );
       } else {
         await fulfillPaidEnrollment({
           userId,
           courseId,
           transactionId: paymentIntent.id,
-          amount: dollarsFromCents(paymentIntent.amount),
+          amount: paymentIntent.amount,
         });
       }
     }
 
     return res.status(200).json({ received: true });
   } catch (error) {
-    console.error('Stripe webhook processing failed:', error);
+    logger.error({ err: error }, 'Stripe webhook processing failed');
     return res.status(500).json({
       status: 'error',
       message: 'Webhook processing failed.',
@@ -302,7 +388,10 @@ export const getMyTransactions = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error retrieving transactions:', error);
+    logger.error(
+      { err: error, requestId: req.requestId },
+      'Error retrieving transactions',
+    );
     return res.status(500).json({
       status: 'error',
       message: 'Unable to retrieve billing history.',

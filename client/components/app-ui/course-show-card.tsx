@@ -1,18 +1,17 @@
 import { Course } from "@/state/api.types"
-import Image from "next/image"
+import { CourseCoverImage } from "@/components/app-ui/course-cover-image"
 import { formatPrice } from "@/lib/utils"
 
 export default function CourseShowCard({ course }: { course: Course }) {
   return (
     <div className="space-y-10 sm:max-w-[80vw] md:max-w-[35vw]">
       <div className="flex w-full flex-col gap-5 rounded-lg bg-gray-800 px-10 py-8">
-        <div className="bg-white-50 mb-2">
-          <Image
-            src={course.image || "/images/course.jpeg"}
+        <div className="bg-white-50 relative mb-2 aspect-video overflow-hidden rounded-md">
+          <CourseCoverImage
+            image={course.image}
+            imageUrl={course.imageUrl}
             alt={course.title}
-            width={500}
-            height={300}
-            className="w-full"
+            fill
           />
         </div>
         <div>
