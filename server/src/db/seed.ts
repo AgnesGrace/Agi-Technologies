@@ -82,7 +82,7 @@ export default async function seed() {
               description: courseMetadata.description || null,
               category: courseMetadata.category,
               image: courseMetadata.image || null,
-              price: courseMetadata.price || 0.0,
+              price: Math.round((courseMetadata.price || 0) * 100),
               level: courseMetadata.level,
               status: courseMetadata.status,
               instructorId: instructorId,
@@ -95,7 +95,8 @@ export default async function seed() {
                       slug: `lec_${nanoid(8)}`,
                       title: lecture.title,
                       type: lecture.type,
-                      videoUrl: lecture.videoUrl || null,
+                      videoKey: lecture.videoUrl || lecture.videoKey || null,
+                      pdfKey: lecture.pdfKey || null,
                       content: lecture.content || null,
                       order: lecture.order,
                     })),
@@ -127,6 +128,11 @@ export default async function seed() {
 const isDirectExecution =
   process.argv[1] &&
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isDirectExecution && process.env.NODE_ENV === 'production') {
+  console.error('Refusing to run the destructive seed script in production.');
+  process.exit(1);
+}
 
 if (isDirectExecution) {
   seed().catch((error) => {

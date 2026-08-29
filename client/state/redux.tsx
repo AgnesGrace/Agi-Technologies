@@ -31,7 +31,8 @@ export const makeStore = () => {
             "meta.arg.originalArgs.formData",
             "meta.baseQueryMeta.request",
             "meta.baseQueryMeta.response",
-            "payload.lecture.videoUrl",
+            "payload.lecture.videoKey",
+            "payload.lecture.pdfKey",
           ],
           ignoredPaths: [
             "global.courseEditor.sections",

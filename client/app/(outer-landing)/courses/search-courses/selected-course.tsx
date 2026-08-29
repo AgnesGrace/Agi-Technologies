@@ -1,8 +1,8 @@
-import SectionsAccordion from "@/components/app-ui/sections-accordion"
-import { Button } from "@/components/ui/button"
-import { formatPrice } from "@/lib/utils"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { cn, formatPrice } from "@/lib/utils"
 import { Course } from "@/state/api.types"
 import { BookOpen, GraduationCap, Layers3 } from "lucide-react"
+import Link from "next/link"
 
 interface ISelectedCourseProps {
   course: Course
@@ -13,11 +13,11 @@ export default function SelectedCourse({
   course,
   handleEnrollCourse,
 }: ISelectedCourseProps) {
-  const sectionCount = course.sections?.length ?? 0
+  const sectionCount = course._count?.sections ?? 0
 
   const lectureCount =
     course.sections?.reduce(
-      (acc, section) => acc + section.lectures.length,
+      (total, section) => total + (section._count?.lectures ?? 0),
       0
     ) ?? 0
 
@@ -54,14 +54,6 @@ export default function SelectedCourse({
             </span>
           </div>
         </div>
-
-        <div>
-          <p className="mb-3 text-sm font-medium">Course curriculum</p>
-
-          <div className="max-h-72 overflow-y-auto pr-2">
-            <SectionsAccordion sections={course.sections ?? []} />
-          </div>
-        </div>
       </div>
 
       <div className="flex items-center justify-between gap-4 border-t bg-muted/20 px-6 py-5">
@@ -72,13 +64,22 @@ export default function SelectedCourse({
           </p>
         </div>
 
-        <Button
-          size="lg"
-          onClick={() => handleEnrollCourse(course.slug)}
-          className="min-w-32"
-        >
-          Enroll now
-        </Button>
+        {course.isEnrolled ? (
+          <Link
+            href={`/learn/${course.id}`}
+            className={cn(buttonVariants({ size: "lg" }), "min-w-32")}
+          >
+            Continue learning
+          </Link>
+        ) : (
+          <Button
+            size="lg"
+            onClick={() => handleEnrollCourse(course.slug)}
+            className="min-w-32"
+          >
+            Enroll now
+          </Button>
+        )}
       </div>
     </aside>
   )

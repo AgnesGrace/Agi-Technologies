@@ -13,9 +13,9 @@ import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { useClerk, useUser } from "@clerk/nextjs"
 import {
-  BanknoteArrowUp,
   BookOpen,
   ChartNoAxesCombined,
+  CreditCard,
   LogOut,
   PanelLeft,
   Route,
@@ -24,16 +24,26 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { normalizeUserRole } from "@/lib/user-role"
+import { BrandMark } from "@/components/app-ui/brand-mark"
 
 const navLinks = {
-  teacher: [
-    { href: "/teacher/courses", icon: BookOpen, label: "Courses" },
-    { href: "/teacher/profile", icon: User, label: "My Profile" },
-    { href: "/teacher/settings", icon: Settings, label: "Settings" },
+  instructor: [
+    { href: "/instructor/courses", icon: BookOpen, label: "Courses" },
+    { href: "/instructor/profile", icon: User, label: "My Profile" },
+    { href: "/instructor/settings", icon: Settings, label: "Settings" },
+    { href: "/instructor/stats", icon: ChartNoAxesCombined, label: "Stats" },
+    { href: "/instructor/billing", icon: CreditCard, label: "Billing" },
+  ],
+  admin: [
+    { href: "/instructor/courses", icon: BookOpen, label: "Courses" },
+    { href: "/instructor/profile", icon: User, label: "My Profile" },
+    { href: "/instructor/settings", icon: Settings, label: "Settings" },
     { href: "/user/stats", icon: ChartNoAxesCombined, label: "Stats" },
   ],
   learner: [
     { href: "/user/courses", icon: BookOpen, label: "Courses" },
+    { href: "/user/billing", icon: CreditCard, label: "Billing" },
     { href: "/user/my-path", icon: Route, label: "My Path" },
     { href: "/user/profile", icon: User, label: "My Profile" },
     { href: "/user/settings", icon: Settings, label: "Settings" },
@@ -51,7 +61,7 @@ export default function AgiSidebar() {
   if (!user) return <p>User not found</p>
 
   const userRole =
-    (user.publicMetadata.userRole as "learner" | "teacher") || "learner"
+    normalizeUserRole(user.publicMetadata.userRole as string) || "learner"
 
   const loggesInUserNavlink = navLinks[userRole]
 
@@ -65,13 +75,11 @@ export default function AgiSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg">
-              <div className="mt-6 flex h-10 w-full justify-between pl-4 group-data-[collapsible=icon]:mt-6 group-data-[collapsible=icon]:justify-center">
-                <Link
-                  href="/"
-                  className="cursor-pointer text-lg font-extrabold"
-                >
-                  Agi
-                </Link>
+              <div className="mt-6 flex h-10 w-full items-center justify-between pl-4 group-data-[collapsible=icon]:mt-6 group-data-[collapsible=icon]:justify-center">
+                <BrandMark
+                  className="group-data-[collapsible=icon]:gap-0"
+                  showWordmark
+                />
 
                 <PanelLeft
                   className="h-5 w-5 cursor-pointer group-data-[collapsible=icon]:hidden"

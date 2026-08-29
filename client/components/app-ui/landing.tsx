@@ -1,92 +1,197 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, Play } from "lucide-react"
+import { motion } from "motion/react"
+import { ArrowRight } from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import LearningPaths from "./learning-paths"
+import { cn } from "@/lib/utils"
+
+const HERO_IMAGE =
+  "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=2400&q=80"
+
+const howItWorks = [
+  {
+    step: "01",
+    title: "Pick a path",
+    body: "Choose the engineering track that matches the job you want.",
+  },
+  {
+    step: "02",
+    title: "Build in public",
+    body: "Ship real projects with courses sequenced for depth, not noise.",
+  },
+  {
+    step: "03",
+    title: "Get hired ready",
+    body: "Leave with portfolio work, interview fluency, and hire-ready skills.",
+  },
+]
 
 export default function Landing() {
   return (
-    <section className="relative overflow-hidden bg-white dark:bg-black">
-      <div
-        className={cn(
-          "absolute inset-0",
-          "bg-size-[100px_100px]",
-          "bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)]",
-          "dark:bg-[linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]"
-        )}
-      />
+    <div className="bg-(--landing-mist) text-(--landing-ink) dark:bg-background dark:text-foreground">
+      <section className="relative min-h-svh overflow-hidden">
+        <motion.div
+          className="absolute inset-0"
+          initial={{ scale: 1.06, opacity: 0.85 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <Image
+            src={HERO_IMAGE}
+            alt="Engineers collaborating on product work"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[center_30%]"
+          />
+        </motion.div>
 
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] dark:bg-black" />
+        <div className="absolute inset-0 bg-linear-to-r from-[oklch(0.16_0.03_250/0.88)] via-[oklch(0.18_0.03_250/0.72)] to-[oklch(0.22_0.04_230/0.35)]" />
+        <div className="absolute inset-0 bg-linear-to-t from-[oklch(0.14_0.03_250/0.55)] via-transparent to-[oklch(0.2_0.02_250/0.25)]" />
 
-      <div className="relative z-20 mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center p-6 text-center">
-        <div className="mb-8 rounded-full border border-neutral-200 bg-white/70 px-5 py-2 text-sm font-medium backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/70">
-          Empowering Developers Worldwide
+        <div className="relative z-10 mx-auto flex min-h-svh max-w-7xl flex-col justify-end px-6 pt-28 pb-20 sm:px-8 sm:pb-24 lg:justify-center lg:pb-28">
+          <div className="max-w-3xl text-white">
+            <motion.p
+              className="font-display text-4xl tracking-tight sm:text-5xl md:text-6xl"
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            >
+              AgiTech
+            </motion.p>
+
+            <motion.h1
+              className="mt-5 max-w-2xl font-display text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl md:text-6xl lg:text-[4.25rem]"
+              initial={{ opacity: 0, y: 22 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.6,
+                delay: 0.08,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              Ship the career you study for.
+            </motion.h1>
+
+            <motion.p
+              className="mt-6 max-w-xl text-base leading-7 text-white/80 sm:text-lg"
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.55,
+                delay: 0.16,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              Structured paths, real projects, and hire-ready skills—built for
+              people who want to work in tech, not just watch it.
+            </motion.p>
+
+            <motion.div
+              className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.55,
+                delay: 0.24,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              <Link
+                href="/courses"
+                className={cn(
+                  buttonVariants({ size: "lg" }),
+                  "h-12 gap-1 px-7 text-base"
+                )}
+              >
+                Start learning
+                <ArrowRight className="size-4" />
+              </Link>
+
+              <Link
+                href="#paths"
+                className={cn(
+                  buttonVariants({ size: "lg", variant: "outline" }),
+                  "h-12 border-white/35 bg-transparent px-7 text-base text-white hover:bg-white/10 hover:text-white"
+                )}
+              >
+                Browse paths
+              </Link>
+            </motion.div>
+          </div>
         </div>
+      </section>
 
-        <h1 className="max-w-6xl bg-gradient-to-b from-neutral-900 to-neutral-600 bg-clip-text text-5xl font-black tracking-tight text-transparent sm:text-6xl md:text-7xl lg:text-8xl dark:from-neutral-100 dark:to-neutral-500">
-          Learn Tech
-          <br />
-          Build Real Projects
-          <br />
-          <span className="bg-linear-to-r from-[oklch(0.4_0.134_242.749)] via-[oklch(0.7_0.16_242.749)] to-[oklch(0.5_0.134_242.749)] bg-clip-text text-transparent drop-shadow-[0_0_18px_oklch(0.5_0.134_242.749/.35)]">
-            Get Hired Worldwide.
-          </span>{" "}
-        </h1>
+      <LearningPaths />
 
-        <p className="mt-8 max-w-3xl text-lg leading-8 text-neutral-600 md:text-xl dark:text-neutral-400">
-          Master modern technologies through structured learning paths, hands-on
-          projects, mentorship, assessments, and interview preparation designed
-          to launch your career in tech.
-        </p>
-
-        <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-          <Button size="lg" className="h-12 px-8 text-base">
-            <Link href="/courses">Start Learning</Link>
-          </Button>
-
-          <Button size="lg" variant="outline" className="h-12 px-8 text-base">
-            <Play className="mr-2 h-4 w-4" />
-            Watch Demo
-          </Button>
-        </div>
-
-        <div className="mt-20 grid w-full max-w-4xl grid-cols-2 gap-10 md:grid-cols-4">
-          <div>
-            <h3 className="text-3xl font-bold">5K+</h3>
-            <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-              Students
+      <section className="border-t border-border/60 bg-background py-24 sm:py-28">
+        <div className="mx-auto max-w-7xl px-6 sm:px-8">
+          <div className="max-w-2xl">
+            <h2 className="font-display text-3xl tracking-tight sm:text-4xl md:text-5xl">
+              How it works
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Three moves. No fluff between you and shipping.
             </p>
           </div>
 
-          <div>
-            <h3 className="text-3xl font-bold">50+</h3>
-            <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-              Projects
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-3xl font-bold">50+</h3>
-            <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-              Courses
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-3xl font-bold">4.9★</h3>
-            <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-              Student Rating
-            </p>
-          </div>
+          <ol className="mt-14 grid gap-12 md:grid-cols-3 md:gap-10">
+            {howItWorks.map((item, index) => (
+              <motion.li
+                key={item.step}
+                className="relative"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{
+                  duration: 0.45,
+                  delay: index * 0.08,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              >
+                <p className="font-display text-sm tracking-[0.2em] text-primary uppercase">
+                  {item.step}
+                </p>
+                <h3 className="mt-3 font-display text-2xl tracking-tight">
+                  {item.title}
+                </h3>
+                <p className="mt-3 max-w-sm text-base leading-7 text-muted-foreground">
+                  {item.body}
+                </p>
+              </motion.li>
+            ))}
+          </ol>
         </div>
+      </section>
 
-        <div className="mt-24 w-full" id="paths">
-          <LearningPaths />
+      <section className="relative overflow-hidden border-t border-border/60 bg-[oklch(0.2_0.04_250)] py-24 text-white sm:py-28">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,oklch(0.45_0.1_230/0.35),transparent_55%)]" />
+        <div className="relative mx-auto flex max-w-7xl flex-col items-start gap-8 px-6 sm:px-8 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-xl">
+            <h2 className="font-display text-3xl tracking-tight sm:text-4xl md:text-5xl">
+              Ready when you are.
+            </h2>
+            <p className="mt-4 text-lg text-white/75">
+              Open the catalog and take the first course on your path.
+            </p>
+          </div>
+
+          <Link
+            href="/courses"
+            className={cn(
+              buttonVariants({ size: "lg" }),
+              "h-12 gap-1 bg-white px-7 text-base text-[oklch(0.18_0.03_250)] hover:bg-white/90"
+            )}
+          >
+            Browse courses
+            <ArrowRight className="size-4" />
+          </Link>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   )
 }

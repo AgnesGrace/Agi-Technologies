@@ -12,13 +12,14 @@ model User {
   email           String        @unique
   name            String
   imageUrl        String?
-  role            UserRole      @default(STUDENT)
+  role            UserRole      @default(LEARNER)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   comments        Comment[]
   coursesAuthored Course[]      @relation("CourseInstructor")
   enrollments     Enrollment[]
   progress        Progress[]
+  lectureProgress LectureProgress[]
   reviews         Review[]
   transactions    Transaction[]
 }
@@ -28,9 +29,9 @@ model Course {
   slug         String        @unique
   title        String
   description  String?
-  category     String       
+  category     String
   image        String?
-  price        Float         @default(0.0)
+  price        Int           @default(0)
   level        CourseLevel   @default(Beginner)
   status       CourseStatus  @default(Draft)
   createdAt    DateTime      @default(now())
@@ -41,7 +42,11 @@ model Course {
   reviews      Review[]
   sections     Section[]
   transactions Transaction[]
-  progresses Progress[]
+  progresses   Progress[]
+  lectureProgress LectureProgress[]
+
+  @@index([category])
+  @@index([instructorId, status])
 }
 
 model Section {
@@ -52,20 +57,26 @@ model Section {
   courseId    Int
   lectures    Lecture[]
   course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId, order])
 }
 
 model Lecture {
-  id         Int         @id @default(autoincrement())
-  slug       String      @unique
-  title      String
-  type       LectureType @default(Video)
-  content    String?
-  videoUrl   String?
-  order      Int
-  sectionId  Int
-  comments   Comment[]
-  section    Section     @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  id        Int         @id @default(autoincrement())
+  slug      String      @unique
+  title     String
 
+  type      LectureType @default(Text)
+  content   String?
+  videoKey  String?
+  pdfKey    String?
+  order     Int
+  sectionId Int
+  comments  Comment[]
+  progress  LectureProgress[]
+  section   Section     @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@index([sectionId, order])
 }
 
 model Comment {
@@ -101,21 +112,43 @@ model Enrollment {
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
+  @@index([userId])
 }
 
 model Progress {
-  id          Int      @id @default(autoincrement())
-  isCompleted Boolean  @default(false)
-  updatedAt   DateTime @updatedAt
+  id                    Int      @id @default(autoincrement())
+  isCompleted           Boolean  @default(false)
+  updatedAt             DateTime @updatedAt
   lastAccessedTimeStamp DateTime @updatedAt
-  overallProgress Float @default(0.0)
-  courseId Int
-  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  userId      String
+  overallProgress       Float    @default(0.0)
+  /** Last lesson the learner opened — powers Continue learning. */
+  lastLectureId         Int?
+  courseId              Int
+  course                Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  userId                String
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
+}
+
+/** Per-lesson completion for enrolled learners. */
+model LectureProgress {
+  id          Int      @id @default(autoincrement())
+  userId      String
+  lectureId   Int
+  courseId    Int
+  isCompleted Boolean  @default(true)
+  completedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lecture Lecture @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lectureId])
+  @@index([userId, courseId])
+  @@index([lectureId])
 }
 
 model Transaction {
@@ -128,10 +161,12 @@ model Transaction {
   courseId        Int
   course          Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 enum UserRole {
-  STUDENT
+  LEARNER
   INSTRUCTOR
   ADMIN
 }
@@ -151,4 +186,5 @@ enum LectureType {
   Video
   Text
   Quiz
+  Pdf
 }

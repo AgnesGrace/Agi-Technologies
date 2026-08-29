@@ -51,11 +51,13 @@ function Payment() {
       }
 
       if (paymentResult.paymentIntent?.status === "succeeded") {
+        if (!user?.id) {
+          toast.error("You must be signed in to complete checkout.")
+          return
+        }
+
         const transactionInfo: Partial<Transaction> = {
           transactionId: paymentResult.paymentIntent.id,
-          userId: user.id,
-          paymentProvider: "stripe",
-          amount: course?.price || 0,
           courseSlug: slug,
         }
 

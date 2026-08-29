@@ -24,7 +24,7 @@ export default function useCheckoutStripe() {
   )
 
   useEffect(() => {
-    if (!isLoaded && !isSignedIn && currentStage > 1) {
+    if (isLoaded && !isSignedIn && currentStage > 1) {
       redirectUserTo(1)
     }
   }, [isLoaded, isSignedIn, currentStage, redirectUserTo])

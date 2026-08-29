@@ -1,10 +1,9 @@
 "use client"
 
-import Image from "next/image"
 import { Users, Star, Clock } from "lucide-react"
 
+import { CourseCoverImage } from "@/components/app-ui/course-cover-image"
 import { Badge } from "@/components/ui/badge"
-
 import { formatPrice } from "@/lib/utils"
 import { Course } from "@/state/api.types"
 
@@ -19,7 +18,8 @@ export default function CourseCard({
   isSelected = false,
   onClick,
 }: ICourseCardProps) {
-  console.log(course, "card")
+  const isEnrolled = course.isEnrolled === true
+
   return (
     <div className="h-full max-w-120 rounded-[22px] bg-white p-0 dark:bg-neutral-950">
       <article
@@ -29,11 +29,12 @@ export default function CourseCard({
         }`}
       >
         <div className="relative aspect-video overflow-hidden">
-          <Image
-            src={course.image || "/placeholder-course.png"}
+          <CourseCoverImage
+            image={course.image}
+            imageUrl={course.imageUrl}
             alt={course.title}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            className="transition-transform duration-500 group-hover:scale-110"
           />
 
           <Badge className="absolute top-3 left-3 font-bold">
@@ -60,7 +61,7 @@ export default function CourseCard({
           <div className="mt-6 space-y-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              <span>{course?._count.enrollments ?? 0} students</span>
+              <span>{course._count?.enrollments ?? 0} students</span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -69,7 +70,7 @@ export default function CourseCard({
             </div>
 
             <p>
-              By
+              By{" "}
               <span className="font-medium text-foreground">
                 {course.instructor?.name || "Anonymous Instructor"}
               </span>
@@ -81,7 +82,9 @@ export default function CourseCard({
               {formatPrice(course.price)}
             </span>
 
-            <Badge variant="secondary">Enroll Now</Badge>
+            <Badge variant="secondary">
+              {isEnrolled ? "Enrolled" : "Enroll Now"}
+            </Badge>
           </div>
         </div>
       </article>

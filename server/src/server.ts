@@ -1,10 +1,25 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import app from './index.js';
+import { validateEnv } from './utils/validate-env.js';
 
-const isProduction = process.env.NODE_ENV === 'production';
+validateEnv();
+
+import app from './index.js';
+import db from './db/db.js';
+import { logger } from './utils/logger.js';
+
 const PORT = process.env.PORT || 8001;
 
-if (!isProduction) {
-  app.listen(PORT, () => console.log(`App is listening on port ${PORT}`));
-}
+const server = app.listen(PORT, () =>
+  logger.info({ port: PORT }, 'App is listening'),
+);
+
+const shutdown = () => {
+  server.close(async () => {
+    await db.$disconnect();
+    process.exit(0);
+  });
+};
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);

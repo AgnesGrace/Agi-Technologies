@@ -5,8 +5,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: var(--font-sans);
+    --font-heading: var(--font-display);
     --font-sans: var(--font-sans);
+    --font-display: var(--font-display);
+    --font-mono: var(--font-mono);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,38 +50,40 @@
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
+    --background: oklch(0.985 0.004 240);
+    --foreground: oklch(0.18 0.02 250);
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
+    --card-foreground: oklch(0.18 0.02 250);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.5 0.134 242.749);
-    --primary-foreground: oklch(0.977 0.013 236.62);
-    --secondary: oklch(0.967 0.001 286.375);
-    --secondary-foreground: oklch(0.21 0.006 285.885);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.18 0.02 250);
+    --primary: oklch(0.48 0.12 242);
+    --primary-foreground: oklch(0.98 0.01 240);
+    --secondary: oklch(0.94 0.01 240);
+    --secondary-foreground: oklch(0.22 0.02 250);
+    --muted: oklch(0.95 0.008 240);
+    --muted-foreground: oklch(0.48 0.02 250);
+    --accent: oklch(0.94 0.015 230);
+    --accent-foreground: oklch(0.22 0.02 250);
     --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
+    --border: oklch(0.9 0.01 240);
+    --input: oklch(0.9 0.01 240);
+    --ring: oklch(0.55 0.08 242);
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
     --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.588 0.158 241.966);
-    --sidebar-primary-foreground: oklch(0.977 0.013 236.62);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    --sidebar: oklch(0.985 0.004 240);
+    --sidebar-foreground: oklch(0.18 0.02 250);
+    --sidebar-primary: oklch(0.48 0.12 242);
+    --sidebar-primary-foreground: oklch(0.98 0.01 240);
+    --sidebar-accent: oklch(0.95 0.008 240);
+    --sidebar-accent-foreground: oklch(0.22 0.02 250);
+    --sidebar-border: oklch(0.9 0.01 240);
+    --sidebar-ring: oklch(0.55 0.08 242);
+    --landing-ink: oklch(0.16 0.03 250);
+    --landing-mist: oklch(0.96 0.01 230);
 }
 
 .dark {
@@ -126,4 +130,156 @@
   html {
     @apply font-sans;
     }
+  .font-display {
+    font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
+.lesson-body {
+  min-height: 12rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--foreground);
+}
+
+.lesson-body--editable {
+  min-height: 16rem;
+}
+
+.lesson-body p {
+  margin: 0.65em 0;
+}
+
+.lesson-body h2 {
+  margin: 1.4em 0 0.5em;
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.45rem;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.lesson-body h3 {
+  margin: 1.2em 0 0.4em;
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.lesson-body ul,
+.lesson-body ol {
+  margin: 0.75em 0;
+  padding-left: 1.35rem;
+}
+
+.lesson-body li {
+  margin: 0.25em 0;
+}
+
+.lesson-body blockquote {
+  margin: 1em 0;
+  border-left: 3px solid var(--border);
+  padding-left: 1rem;
+  color: var(--muted-foreground);
+}
+
+.lesson-body__code,
+.lesson-body pre {
+  margin: 1em 0;
+  overflow-x: auto;
+  border-radius: calc(var(--radius) + 2px);
+  border: 1px solid var(--border);
+  background: oklch(0.16 0.02 250);
+  color: oklch(0.92 0.01 240);
+  padding: 0.9rem 1rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.lesson-body code {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.9em;
+}
+
+.lesson-body p code {
+  border-radius: 0.3rem;
+  background: var(--muted);
+  padding: 0.1em 0.35em;
+}
+
+.lesson-body__image,
+.lesson-body img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.1em 0;
+  border-radius: calc(var(--radius) + 2px);
+  border: 1px solid var(--border);
+}
+
+.lesson-body__link {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.lesson-body__sketch {
+  margin: 1.1em 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 2px);
+  background: var(--card);
+}
+
+.lesson-body__sketch--selected {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.lesson-body__sketch-chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--muted);
+  padding: 0.4rem 0.75rem;
+}
+
+.lesson-body__sketch-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.lesson-body__sketch-remove {
+  border: 0;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.lesson-body__sketch-remove:hover {
+  color: var(--destructive);
+}
+
+.lesson-body__sketch-canvas {
+  height: 22rem;
+  touch-action: none;
+}
+
+.lesson-body .ProseMirror-focused {
+  outline: none;
+}
+
+.lesson-body p.is-editor-empty:first-child::before {
+  float: left;
+  height: 0;
+  color: var(--muted-foreground);
+  content: attr(data-placeholder);
+  pointer-events: none;
 }
